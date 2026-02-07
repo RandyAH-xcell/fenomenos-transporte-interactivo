@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fenómenos de Transporte — Interactivo (ES/EN)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { --bg:#0b1020; --card:#121a33; --muted:#a9b3d1; --text:#e9edff; --accent:#7aa2ff; --good:#7dffb2; }
+    *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:linear-gradient(180deg,#070a14, var(--bg));color:var(--text)}
+    header{position:sticky;top:0;background:rgba(7,10,20,.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);z-index:10}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    h1{font-size:18px;margin:0}
+    .btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer}
+    .btn:hover{border-color:rgba(122,162,255,.55)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:14px}
+    .card{grid-column:span 12;background:rgba(18,26,51,.75);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px}
+    @media(min-width:980px){ .card.half{grid-column:span 6} .card.third{grid-column:span 4} }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .muted{color:var(--muted);font-size:13px}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:13px}
+    .pill b{color:var(--good)}
+    .controls{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    .control{display:grid;grid-template-columns:160px 1fr 90px;gap:10px;align-items:center}
+    .control label{font-size:13px;color:var(--muted)}
+    input[type="range"]{width:100%}
+    select{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text)}
+    .examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .ex{padding:8px 10px;border-radius:999px;background:rgba(122,162,255,.12);border:1px solid rgba(122,162,255,.25);cursor:pointer;font-size:13px}
+    .ex:hover{border-color:rgba(122,162,255,.55)}
+    canvas{background:rgba(255,255,255,.03);border-radius:14px;border:1px solid rgba(255,255,255,.08);padding:8px}
+    .small{font-size:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer}
+    .tab.active{border-color:rgba(122,162,255,.7);background:rgba(122,162,255,.12)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <h1 id="title">Fenómenos de Transporte — Interactivo</h1>
+    <div class="row" style="gap:8px">
+      <button class="btn" id="langBtn">EN</button>
+      <span class="muted" id="hint">Sliders → observa la gráfica</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="card">
+    <div class="row">
+      <div class="tabs">
+        <div class="tab active" data-tab="diff" id="tabDiff">Difusión</div>
+        <div class="tab" data-tab="cond" id="tabCond">Conducción</div>
+        <div class="tab" data-tab="conv" id="tabConv">Convección</div>
+      </div>
+      <div class="muted small" id="eqHint">Cambia sliders y prueba ejemplos</div>
+    </div>
+  </div>
+
+  <!-- DIFUSIÓN -->
+  <section class="grid" id="panel-diff">
+    <div class="card half">
+      <div class="row">
+        <div>
+          <div id="diffTitle" style="font-weight:700">Difusión (Fick)</div>
+          <div class="muted" id="diffSub">Flujo por gradiente de concentración</div>
+        </div>
+        <select id="diffUnits">
+          <option value="m2s">D en m²/s</option>
+          <option value="cm2s">D en cm²/s</option>
+        </select>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <label id="lblD">Difusividad D</label>
+          <input type="range" id="D" min="0.000001" max="0.0002" step="0.000001" value="0.00002" />
+          <div class="pill"><span id="valD"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblGrad">Gradiente dC/dx</label>
+          <input type="range" id="dCdx" min="-50" max="50" step="1" value="-10" />
+          <div class="pill"><span id="valdCdx"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblC0">C(0)</label>
+          <input type="range" id="C0" min="0" max="200" step="1" value="80" />
+          <div class="pill"><span id="valC0"></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="pill" id="kpiJ"></div>
+        <div class="pill" id="kpiDir"></div>
+      </div>
+
+      <div class="examples" id="diffExamples"></div>
+    </div>
+
+    <div class="card half">
+      <div class="row">
+        <div id="diffPlotTitle" style="font-weight:700">Perfil C(x)</div>
+        <div class="muted small" id="diffPlotNote">línea simple 1D</div>
+      </div>
+      <canvas id="chartDiff" height="220"></canvas>
+    </div>
+  </section>
+
+  <!-- CONDUCCIÓN -->
+  <section class="grid" id="panel-cond" style="display:none">
+    <div class="card half">
+      <div class="row">
+        <div>
+          <div id="condTitle" style="font-weight:700">Conducción (Fourier)</div>
+          <div class="muted" id="condSub">Transferencia por gradiente de temperatura</div>
+        </div>
+        <select id="condMaterial">
+          <option value="custom">Custom</option>
+          <option value="metal">Metal (alto k)</option>
+          <option value="plastic">Plástico (bajo k)</option>
+        </select>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <label id="lblk">Conductividad k (W/m·K)</label>
+          <input type="range" id="k" min="0.05" max="400" step="0.05" value="15" />
+          <div class="pill"><span id="valk"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblA">Área A (m²)</label>
+          <input type="range" id="A" min="0.01" max="2" step="0.01" value="0.2" />
+          <div class="pill"><span id="valA"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblL">Espesor L (m)</label>
+          <input type="range" id="L" min="0.001" max="0.2" step="0.001" value="0.02" />
+          <div class="pill"><span id="valL"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblDT">ΔT (K)</label>
+          <input type="range" id="dT" min="1" max="200" step="1" value="40" />
+          <div class="pill"><span id="valdT"></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="pill" id="kpiQcond"></div>
+        <div class="pill" id="kpiQcond2"></div>
+      </div>
+
+      <div class="examples" id="condExamples"></div>
+    </div>
+
+    <div class="card half">
+      <div class="row">
+        <div id="condPlotTitle" style="font-weight:700">Comparación: k alto vs k bajo</div>
+        <div class="muted small" id="condPlotNote">mismo ΔT, A, L</div>
+      </div>
+      <canvas id="chartCond" height="220"></canvas>
+    </div>
+  </section>
+
+  <!-- CONVECCIÓN -->
+  <section class="grid" id="panel-conv" style="display:none">
+    <div class="card half">
+      <div class="row">
+        <div>
+          <div id="convTitle" style="font-weight:700">Convección (Newton)</div>
+          <div class="muted" id="convSub">Transferencia por movimiento de fluido</div>
+        </div>
+        <select id="convScenario">
+          <option value="custom">Custom</option>
+          <option value="still">Aire quieto</option>
+          <option value="fan">Con ventilador</option>
+          <option value="water">En agua</option>
+        </select>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <label id="lblh">Coef. h (W/m²·K)</label>
+          <input type="range" id="h" min="2" max="2000" step="1" value="15" />
+          <div class="pill"><span id="valh"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblA2">Área A (m²)</label>
+          <input type="range" id="A2" min="0.01" max="2" step="0.01" value="0.15" />
+          <div class="pill"><span id="valA2"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblTs">T_superficie (°C)</label>
+          <input type="range" id="Ts" min="0" max="120" step="1" value="80" />
+          <div class="pill"><span id="valTs"></span></div>
+        </div>
+        <div class="control">
+          <label id="lblTinf">T_fluido (°C)</label>
+          <input type="range" id="Tinf" min="0" max="60" step="1" value="25" />
+          <div class="pill"><span id="valTinf"></span></div>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="pill" id="kpiQconv"></div>
+        <div class="pill" id="kpiCooling"></div>
+      </div>
+
+      <div class="examples" id="convExamples"></div>
+    </div>
+
+    <div class="card half">
+      <div class="row">
+        <div id="convPlotTitle" style="font-weight:700">q vs h</div>
+        <div class="muted small" id="convPlotNote">mantiene A y ΔT</div>
+      </div>
+      <canvas id="chartConv" height="220"></canvas>
+    </div>
+  </section>
+
+  <div class="card">
+    <div class="row">
+      <div style="font-weight:700" id="nextTitle">Siguiente nivel (vibe coding)</div>
+      <div class="muted small" id="nextHint">Cuando esto corra, le agregamos: Re/Pr/Sc, masa+calor acoplados, y mini-retos.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ===== i18n (ES/EN) =====
+  const I18N = {
+    es: {
+      title: "Fenómenos de Transporte — Interactivo",
+      hint: "Sliders → observa la gráfica",
+      eqHint: "Cambia sliders y prueba ejemplos",
+      tabs: { diff:"Difusión", cond:"Conducción", conv:"Convección" },
+
+      diff: {
+        title:"Difusión (Fick)",
+        sub:"Flujo por gradiente de concentración",
+        units: { m2s:"D en m²/s", cm2s:"D en cm²/s" },
+        lblD:"Difusividad D",
+        lblGrad:"Gradiente dC/dx",
+        lblC0:"C(0)",
+        kpiJ:(J)=>`Flujo J: <b>${fmt(J,4)}</b> (unid.)`,
+        kpiDir:(J)=> J>0 ? "Dirección: <b>+x</b>" : (J<0 ? "Dirección: <b>-x</b>" : "Dirección: <b>0</b>"),
+        plotTitle:"Perfil C(x)",
+        plotNote:"línea simple 1D",
+        ex:[
+          {name:"Perfume en aire (D ~ 2e-5)", set:{D:0.00002,dCdx:-8,C0:80,unit:"m2s"}},
+          {name:"Soluto en agua (D ~ 1e-9)", set:{D:0.00000002,dCdx:-20,C0:120,unit:"m2s"}},
+          {name:"Gradiente invertido", set:{D:0.00002,dCdx:15,C0:60,unit:"m2s"}},
+        ]
+      },
+
+      cond: {
+        title:"Conducción (Fourier)",
+        sub:"Transferencia por gradiente de temperatura",
+        lblk:"Conductividad k (W/m·K)",
+        lblA:"Área A (m²)",
+        lblL:"Espesor L (m)",
+        lblDT:"ΔT (K)",
+        plotTitle:"Comparación: k alto vs k bajo",
+        plotNote:"mismo ΔT, A, L",
+        kpi1:(q)=>`Calor q: <b>${fmt(q,2)}</b> W`,
+        kpi2:(qpp)=>`Flujo q'': <b>${fmt(qpp,2)}</b> W/m²`,
+        ex:[
+          {name:"Metal vs Plástico", set:{k:15,A:0.2,L:0.02,dT:40,mat:"custom"}},
+          {name:"Aislante grueso", set:{k:0.2,A:0.2,L:0.12,dT:40,mat:"custom"}},
+          {name:"Pared delgada conductiva", set:{k:200,A:0.2,L:0.005,dT:60,mat:"custom"}},
+        ]
+      },
+
+      conv: {
+        title:"Convección (Newton)",
+        sub:"Transferencia por movimiento de fluido",
+        lblh:"Coef. h (W/m²·K)",
+        lblA:"Área A (m²)",
+        lblTs:"T_superficie (°C)",
+        lblTinf:"T_fluido (°C)",
+        plotTitle:"q vs h",
+        plotNote:"mantiene A y ΔT",
+        kpi1:(q)=>`Calor q: <b>${fmt(q,2)}</b> W`,
+        kpi2:(tau)=>`“Qué tan rápido” (aprox): <b>${tau}</b>`,
+        ex:[
+          {name:"Café, aire quieto", set:{h:10,A2:0.15,Ts:80,Tinf:25,sc:"still"}},
+          {name:"Café, con ventilador", set:{h:60,A2:0.15,Ts:80,Tinf:25,sc:"fan"}},
+          {name:"En agua (agitación)", set:{h:500,A2:0.15,Ts:80,Tinf:25,sc:"water"}},
+        ]
+      },
+
+      nextTitle:"Siguiente nivel (vibe coding)",
+      nextHint:"Cuando esto corra, le agregamos: Re/Pr/Sc, masa+calor acoplados, y mini-retos."
+    },
+
+    en: {
+      title: "Transport Phenomena — Interactive",
+      hint: "Sliders → watch the plot",
+      eqHint: "Move sliders and try examples",
+      tabs: { diff:"Diffusion", cond:"Conduction", conv:"Convection" },
+
+      diff: {
+        title:"Diffusion (Fick)",
+        sub:"Flux driven by concentration gradient",
+        units: { m2s:"D in m²/s", cm2s:"D in cm²/s" },
+        lblD:"Diffusivity D",
+        lblGrad:"Gradient dC/dx",
+        lblC0:"C(0)",
+        kpiJ:(J)=>`Flux J: <b>${fmt(J,4)}</b> (units)`,
+        kpiDir:(J)=> J>0 ? "Direction: <b>+x</b>" : (J<0 ? "Direction: <b>-x</b>" : "Direction: <b>0</b>"),
+        plotTitle:"C(x) profile",
+        plotNote:"simple 1D line",
+        ex:[
+          {name:"Perfume in air (D ~ 2e-5)", set:{D:0.00002,dCdx:-8,C0:80,unit:"m2s"}},
+          {name:"Solute in water (very low D)", set:{D:0.00000002,dCdx:-20,C0:120,unit:"m2s"}},
+          {name:"Reverse gradient", set:{D:0.00002,dCdx:15,C0:60,unit:"m2s"}},
+        ]
+      },
+
+      cond: {
+        title:"Conduction (Fourier)",
+        sub:"Heat transfer driven by temperature gradient",
+        lblk:"Conductivity k (W/m·K)",
+        lblA:"Area A (m²)",
+        lblL:"Thickness L (m)",
+        lblDT:"ΔT (K)",
+        plotTitle:"Compare: high k vs low k",
+        plotNote:"same ΔT, A, L",
+        kpi1:(q)=>`Heat q: <b>${fmt(q,2)}</b> W`,
+        kpi2:(qpp)=>`Heat flux q'': <b>${fmt(qpp,2)}</b> W/m²`,
+        ex:[
+          {name:"Metal vs Plastic", set:{k:15,A:0.2,L:0.02,dT:40,mat:"custom"}},
+          {name:"Thick insulation", set:{k:0.2,A:0.2,L:0.12,dT:40,mat:"custom"}},
+          {name:"Thin conductive wall", set:{k:200,A:0.2,L:0.005,dT:60,mat:"custom"}},
+        ]
+      },
+
+      conv: {
+        title:"Convection (Newton)",
+        sub:"Heat transfer with moving fluid",
+        lblh:"Coeff. h (W/m²·K)",
+        lblA:"Area A (m²)",
+        lblTs:"Surface T (°C)",
+        lblTinf:"Fluid T (°C)",
+        plotTitle:"q vs h",
+        plotNote:"holds A and ΔT",
+        kpi1:(q)=>`Heat q: <b>${fmt(q,2)}</b> W`,
+        kpi2:(tau)=>`“How fast” (rough): <b>${tau}</b>`,
+        ex:[
+          {name:"Coffee, still air", set:{h:10,A2:0.15,Ts:80,Tinf:25,sc:"still"}},
+          {name:"Coffee, with fan", set:{h:60,A2:0.15,Ts:80,Tinf:25,sc:"fan"}},
+          {name:"In water (agitated)", set:{h:500,A2:0.15,Ts:80,Tinf:25,sc:"water"}},
+        ]
+      },
+
+      nextTitle:"Next level (vibe coding)",
+      nextHint:"Once it runs, we add: Re/Pr/Sc, coupled mass+heat, and mini-challenges."
+    }
+  };
+
+  let lang = "es";
+
+  // ===== helpers =====
+  const $ = (id)=>document.getElementById(id);
+  const fmt = (x, d=3)=> Number.isFinite(x) ? Number(x).toFixed(d) : "—";
+  const clamp = (x, a, b)=>Math.max(a, Math.min(b, x));
+
+  // ===== tabs =====
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+      t.classList.add("active");
+      const tab = t.dataset.tab;
+      ["diff","cond","conv"].forEach(k=>{
+        $("panel-"+k).style.display = (k===tab) ? "" : "none";
+      });
+    });
+  });
+
+  // ===== charts =====
+  let chartDiff, chartCond, chartConv;
+
+  function initCharts(){
+    // Diffusion chart: C(x)
+    const ctxD = $("chartDiff").getContext("2d");
+    chartDiff = new Chart(ctxD, {
+      type:"line",
+      data:{ labels:[], datasets:[{ label:"C(x)", data:[] }] },
+      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+    });
+
+    // Conduction comparison bar
+    const ctxC = $("chartCond").getContext("2d");
+    chartCond = new Chart(ctxC, {
+      type:"bar",
+      data:{ labels:["Low k","Current k","High k"], datasets:[{ label:"q (W)", data:[0,0,0] }] },
+      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+    });
+
+    // Convection: q vs h line
+    const ctxV = $("chartConv").getContext("2d");
+    chartConv = new Chart(ctxV, {
+      type:"line",
+      data:{ labels:[], datasets:[{ label:"q (W)", data:[] }] },
+      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+    });
+  }
+
+  // ===== diffusion logic =====
+  function getD_SI(){
+    const unit = $("diffUnits").value; // m2s or cm2s
+    let D = parseFloat($("D").value);
+    // If cm²/s, convert to m²/s (1 cm² = 1e-4 m²)
+    if(unit==="cm2s") D = D * 1e-4;
+    return D;
+  }
+
+  function updateDiff(){
+    const unit = $("diffUnits").value;
+    const D_raw = parseFloat($("D").value);
+    const dCdx = parseFloat($("dCdx").value); // concentration units per meter (conceptual)
+    const C0 = parseFloat($("C0").value);
+
+    $("valD").textContent = unit==="m2s" ? `${fmt(D_raw,6)} m²/s` : `${fmt(D_raw,6)} cm²/s`;
+    $("valdCdx").textContent = `${dCdx} (ΔC/m)`;
+    $("valC0").textContent = `${C0}`;
+
+    const D = getD_SI();
+    const J = -D * dCdx;
+
+    $("kpiJ").innerHTML = I18N[lang].diff.kpiJ(J);
+    $("kpiDir").innerHTML = I18N[lang].diff.kpiDir(J);
+
+    // build C(x) for x in [0,1] m
+    const xs = [];
+    const Cs = [];
+    for(let i=0;i<=30;i++){
+      const x = i/30;
+      xs.push(x.toFixed(2));
+      Cs.push(C0 + dCdx*x);
+    }
+    chartDiff.data.labels = xs;
+    chartDiff.data.datasets[0].data = Cs;
+    chartDiff.update();
+  }
+
+  function renderDiffExamples(){
+    const box = $("diffExamples");
+    box.innerHTML = "";
+    I18N[lang].diff.ex.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = ex.name;
+      b.onclick = ()=>{
+        $("diffUnits").value = ex.set.unit;
+        // For the slider: keep D raw as displayed unit
+        $("D").value = ex.set.D;
+        $("dCdx").value = ex.set.dCdx;
+        $("C0").value = ex.set.C0;
+        updateDiff();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  // ===== conduction logic =====
+  function updateCond(){
+    let k = parseFloat($("k").value);
+    const A = parseFloat($("A").value);
+    const L = parseFloat($("L").value);
+    const dT = parseFloat($("dT").value);
+
+    $("valk").textContent = `${fmt(k,2)}`;
+    $("valA").textContent = `${fmt(A,2)}`;
+    $("valL").textContent = `${fmt(L,3)}`;
+    $("valdT").textContent = `${dT}`;
+
+    const q = k*A*dT / L;     // W (simple steady conduction)
+    const qpp = k*dT / L;     // W/m²
+
+    $("kpiQcond").innerHTML = I18N[lang].cond.kpi1(q);
+    $("kpiQcond2").innerHTML = I18N[lang].cond.kpi2(qpp);
+
+    // compare q for low/cur/high k
+    const kLow = 0.2, kHigh = 200;
+    const qLow = kLow*A*dT/L, qHigh = kHigh*A*dT/L;
+    chartCond.data.datasets[0].data = [qLow, q, qHigh];
+    chartCond.update();
+  }
+
+  function renderCondExamples(){
+    const box = $("condExamples");
+    box.innerHTML = "";
+    I18N[lang].cond.ex.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = ex.name;
+      b.onclick = ()=>{
+        $("condMaterial").value = ex.set.mat || "custom";
+        $("k").value = ex.set.k;
+        $("A").value = ex.set.A;
+        $("L").value = ex.set.L;
+        $("dT").value = ex.set.dT;
+        updateCond();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  $("condMaterial").addEventListener("change", ()=>{
+    const v = $("condMaterial").value;
+    if(v==="metal") $("k").value = 200;
+    if(v==="plastic") $("k").value = 0.2;
+    updateCond();
+  });
+
+  // ===== convection logic =====
+  function updateConv(){
+    const h = parseFloat($("h").value);
+    const A = parseFloat($("A2").value);
+    const Ts = parseFloat($("Ts").value);
+    const Tinf = parseFloat($("Tinf").value);
+    const dT = Ts - Tinf;
+
+    $("valh").textContent = `${fmt(h,0)}`;
+    $("valA2").textContent = `${fmt(A,2)}`;
+    $("valTs").textContent = `${fmt(Ts,0)}`;
+    $("valTinf").textContent = `${fmt(Tinf,0)}`;
+
+    const q = h*A*dT;
+
+    // “speed” heuristic: bigger h → faster cooling (qualitative label)
+    let tau = "—";
+    const hEff = clamp(h,2,2000);
+    if(hEff < 15) tau = (lang==="es") ? "lento" : "slow";
+    else if(hEff < 80) tau = (lang==="es") ? "medio" : "medium";
+    else tau = (lang==="es") ? "rápido" : "fast";
+
+    $("kpiQconv").innerHTML = I18N[lang].conv.kpi1(q);
+    $("kpiCooling").innerHTML = I18N[lang].conv.kpi2(tau);
+
+    // plot q vs h for a range (keeping A and dT)
+    const hs = [], qs = [];
+    const hMin=2, hMax=600;
+    for(let i=0;i<=25;i++){
+      const hv = hMin + (hMax-hMin)*i/25;
+      hs.push(Math.round(hv).toString());
+      qs.push(hv*A*dT);
+    }
+    chartConv.data.labels = hs;
+    chartConv.data.datasets[0].data = qs;
+    chartConv.update();
+  }
+
+  function renderConvExamples(){
+    const box = $("convExamples");
+    box.innerHTML = "";
+    I18N[lang].conv.ex.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = ex.name;
+      b.onclick = ()=>{
+        $("convScenario").value = ex.set.sc || "custom";
+        $("h").value = ex.set.h;
+        $("A2").value = ex.set.A2;
+        $("Ts").value = ex.set.Ts;
+        $("Tinf").value = ex.set.Tinf;
+        updateConv();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  $("convScenario").addEventListener("change", ()=>{
+    const v = $("convScenario").value;
+    if(v==="still") $("h").value = 10;
+    if(v==="fan") $("h").value = 60;
+    if(v==="water") $("h").value = 500;
+    updateConv();
+  });
+
+  // ===== language apply =====
+  function applyLang(){
+    const t = I18N[lang];
+
+    $("title").textContent = t.title;
+    $("hint").textContent = t.hint;
+    $("eqHint").textContent = t.eqHint;
+
+    $("tabDiff").textContent = t.tabs.diff;
+    $("tabCond").textContent = t.tabs.cond;
+    $("tabConv").textContent = t.tabs.conv;
+
+    // Diff labels
+    $("diffTitle").textContent = t.diff.title;
+    $("diffSub").textContent = t.diff.sub;
+    $("lblD").textContent = t.diff.lblD;
+    $("lblGrad").textContent = t.diff.lblGrad;
+    $("lblC0").textContent = t.diff.lblC0;
+    $("diffPlotTitle").textContent = t.diff.plotTitle;
+    $("diffPlotNote").textContent = t.diff.plotNote;
+
+    // Diff units select text
+    $("diffUnits").options[0].text = t.diff.units.m2s;
+    $("diffUnits").options[1].text = t.diff.units.cm2s;
+
+    // Cond labels
+    $("condTitle").textContent = t.cond.title;
+    $("condSub").textContent = t.cond.sub;
+    $("lblk").textContent = t.cond.lblk;
+    $("lblA").textContent = t.cond.lblA;
+    $("lblL").textContent = t.cond.lblL;
+    $("lblDT").textContent = t.cond.lblDT;
+    $("condPlotTitle").textContent = t.cond.plotTitle;
+    $("condPlotNote").textContent = t.cond.plotNote;
+
+    // Conv labels
+    $("convTitle").textContent = t.conv.title;
+    $("convSub").textContent = t.conv.sub;
+    $("lblh").textContent = t.conv.lblh;
+    $("lblA2").textContent = t.conv.lblA;
+    $("lblTs").textContent = t.conv.lblTs;
+    $("lblTinf").textContent = t.conv.lblTinf;
+    $("convPlotTitle").textContent = t.conv.plotTitle;
+    $("convPlotNote").textContent = t.conv.plotNote;
+
+    // Footer
+    $("nextTitle").textContent = t.nextTitle;
+    $("nextHint").textContent = t.nextHint;
+
+    // examples re-render (language-dependent)
+    renderDiffExamples();
+    renderCondExamples();
+    renderConvExamples();
+
+    // refresh KPIs/plots
+    updateDiff(); updateCond(); updateConv();
+  }
+
+  $("langBtn").addEventListener("click", ()=>{
+    lang = (lang==="es") ? "en" : "es";
+    $("langBtn").textContent = (lang==="es") ? "EN" : "ES";
+    applyLang();
+  });
+
+  // ===== wire sliders =====
+  ["D","dCdx","C0","diffUnits"].forEach(id => $(id).addEventListener("input", updateDiff));
+  ["k","A","L","dT"].forEach(id => $(id).addEventListener("input", updateCond));
+  ["h","A2","Ts","Tinf"].forEach(id => $(id).addEventListener("input", updateConv));
+
+  // ===== start =====
+  initCharts();
+  applyLang();
+</script>
+</body>
+</html>
