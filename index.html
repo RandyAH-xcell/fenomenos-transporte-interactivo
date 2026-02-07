@@ -6,653 +6,1411 @@
   <title>Fenómenos de Transporte — Interactivo (ES/EN)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root { --bg:#0b1020; --card:#121a33; --muted:#a9b3d1; --text:#e9edff; --accent:#7aa2ff; --good:#7dffb2; }
-    *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:linear-gradient(180deg,#070a14, var(--bg));color:var(--text)}
-    header{position:sticky;top:0;background:rgba(7,10,20,.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);z-index:10}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    h1{font-size:18px;margin:0}
-    .btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer}
-    .btn:hover{border-color:rgba(122,162,255,.55)}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:14px}
-    .card{grid-column:span 12;background:rgba(18,26,51,.75);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px}
-    @media(min-width:980px){ .card.half{grid-column:span 6} .card.third{grid-column:span 4} }
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .muted{color:var(--muted);font-size:13px}
-    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:13px}
-    .pill b{color:var(--good)}
-    .controls{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    :root{
+      --bg:#f6f8fc;
+      --panel:#ffffff;
+      --text:#1a2240;
+      --muted:#5f6b8a;
+      --accent:#356dff;
+      --accent-soft:#e7efff;
+      --good:#0da66e;
+      --warn:#ffb347;
+      --border:#e2e7f2;
+      --shadow:0 10px 30px rgba(22,39,90,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;background:rgba(246,248,252,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:20}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+    .title h1{font-size:20px;margin:0}
+    .title p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .btn{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{position:static}}
+    .sidebar{position:sticky;top:88px;display:flex;flex-direction:column;gap:10px}
+    .nav-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:var(--shadow)}
+    .nav-card h3{margin:0 0 8px;font-size:14px}
+    .nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;color:var(--muted);font-size:13px}
+    .nav-link:hover{background:var(--accent-soft);color:var(--text)}
+    .content{display:flex;flex-direction:column;gap:18px}
+    section{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+    section h2{margin:0 0 6px;font-size:18px}
+    .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{grid-column:span 12;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
+    .card.soft{background:var(--accent-soft)}
+    @media(min-width:980px){.card.half{grid-column:span 6}.card.third{grid-column:span 4}}
+    .controls{display:grid;gap:10px;margin-top:10px}
     .control{display:grid;grid-template-columns:160px 1fr 90px;gap:10px;align-items:center}
-    .control label{font-size:13px;color:var(--muted)}
-    input[type="range"]{width:100%}
-    select{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text)}
+    .control label{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+    .control input[type="range"]{width:100%}
+    .pill{padding:7px 10px;border-radius:999px;background:var(--accent-soft);color:var(--text);font-size:12px;border:1px solid rgba(53,109,255,.2)}
+    .kpi{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(53,109,255,.12);border:1px solid rgba(53,109,255,.3)}
+    .info{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11px;border:1px solid rgba(53,109,255,.3)}
     .examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .ex{padding:8px 10px;border-radius:999px;background:rgba(122,162,255,.12);border:1px solid rgba(122,162,255,.25);cursor:pointer;font-size:13px}
-    .ex:hover{border-color:rgba(122,162,255,.55)}
-    canvas{background:rgba(255,255,255,.03);border-radius:14px;border:1px solid rgba(255,255,255,.08);padding:8px}
-    .small{font-size:12px}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap}
-    .tab{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer}
-    .tab.active{border-color:rgba(122,162,255,.7);background:rgba(122,162,255,.12)}
+    .ex{padding:8px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--border);cursor:pointer;font-size:12px}
+    .ex:hover{border-color:var(--accent);color:var(--accent)}
+    .equation{font-family:"Segoe UI",Roboto,system-ui;border:1px dashed rgba(53,109,255,.5);background:rgba(53,109,255,.08);padding:12px;border-radius:12px}
+    .equation strong{color:var(--accent)}
+    .toggle-list{display:grid;gap:8px}
+    .toggle{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .toggle input{transform:scale(1.1)}
+    canvas{background:#fbfcff;border-radius:12px;border:1px solid var(--border);padding:8px}
+    .status{font-weight:600}
+    .status.good{color:var(--good)}
+    .status.warn{color:var(--warn)}
+    .mini{font-size:12px;color:var(--muted)}
+    .badge{padding:6px 10px;border-radius:999px;background:rgba(13,166,110,.12);color:var(--good);border:1px solid rgba(13,166,110,.3);font-size:12px}
+    .badge.warn{background:rgba(255,179,71,.12);color:var(--warn);border-color:rgba(255,179,71,.3)}
+    .table{display:grid;gap:6px}
+    .table-row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+    .traffic{display:inline-flex;align-items:center;gap:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.low{background:#4caf50}.dot.med{background:#ffb347}.dot.high{background:#ff6b6b}
   </style>
 </head>
 <body>
 <header>
-  <div class="wrap top">
-    <h1 id="title">Fenómenos de Transporte — Interactivo</h1>
-    <div class="row" style="gap:8px">
-      <button class="btn" id="langBtn">EN</button>
-      <span class="muted" id="hint">Sliders → observa la gráfica</span>
+  <div class="wrap topbar">
+    <div class="title">
+      <h1 data-i18n="title">Fenómenos de Transporte — Interactivo</h1>
+      <p data-i18n="subtitle">Dashboard educativo con sliders, gráficas y mini-retos (ES/EN).</p>
     </div>
+    <button class="btn" id="langBtn">EN</button>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="card">
-    <div class="row">
-      <div class="tabs">
-        <div class="tab active" data-tab="diff" id="tabDiff">Difusión</div>
-        <div class="tab" data-tab="cond" id="tabCond">Conducción</div>
-        <div class="tab" data-tab="conv" id="tabConv">Convección</div>
-      </div>
-      <div class="muted small" id="eqHint">Cambia sliders y prueba ejemplos</div>
+<main class="wrap layout">
+  <aside class="sidebar">
+    <div class="nav-card">
+      <h3 data-i18n="nav.title">Mapa rápido</h3>
+      <a class="nav-link" href="#home">🏠 <span data-i18n="nav.home">Home</span></a>
+      <a class="nav-link" href="#general">📘 <span data-i18n="nav.general">Ecuación general</span></a>
+      <a class="nav-link" href="#diffusion">🧪 <span data-i18n="nav.diffusion">Difusión</span></a>
+      <a class="nav-link" href="#conduction">🔥 <span data-i18n="nav.conduction">Conducción</span></a>
+      <a class="nav-link" href="#convection">🌬️ <span data-i18n="nav.convection">Convección</span></a>
+      <a class="nav-link" href="#dimensionless">📐 <span data-i18n="nav.dimensionless">Adimensionales</span></a>
+      <a class="nav-link" href="#simplifications">🧩 <span data-i18n="nav.simplifications">Simplificaciones</span></a>
+      <a class="nav-link" href="#challenges">🎯 <span data-i18n="nav.challenges">Mini-retos</span></a>
     </div>
-  </div>
+  </aside>
 
-  <!-- DIFUSIÓN -->
-  <section class="grid" id="panel-diff">
-    <div class="card half">
-      <div class="row">
-        <div>
-          <div id="diffTitle" style="font-weight:700">Difusión (Fick)</div>
-          <div class="muted" id="diffSub">Flujo por gradiente de concentración</div>
+  <div class="content">
+    <section id="home">
+      <h2 data-i18n="home.title">Home / Mapa del curso</h2>
+      <p class="sub" data-i18n="home.subtitle">Explora cada módulo. Todo es interactivo y bilingüe.</p>
+      <div class="grid">
+        <div class="card third">
+          <h3 data-i18n="home.cards.general.title">Ecuación general</h3>
+          <p class="mini" data-i18n="home.cards.general.desc">Base de masa, calor y momento.</p>
+          <span class="chip" data-i18n="home.cards.general.tag">conceptos base</span>
         </div>
-        <select id="diffUnits">
-          <option value="m2s">D en m²/s</option>
-          <option value="cm2s">D en cm²/s</option>
-        </select>
-      </div>
-
-      <div class="controls">
-        <div class="control">
-          <label id="lblD">Difusividad D</label>
-          <input type="range" id="D" min="0.000001" max="0.0002" step="0.000001" value="0.00002" />
-          <div class="pill"><span id="valD"></span></div>
+        <div class="card third">
+          <h3 data-i18n="home.cards.diff.title">Difusión</h3>
+          <p class="mini" data-i18n="home.cards.diff.desc">Fick, perfiles y flujo.</p>
+          <span class="chip" data-i18n="home.cards.diff.tag">masa</span>
         </div>
-        <div class="control">
-          <label id="lblGrad">Gradiente dC/dx</label>
-          <input type="range" id="dCdx" min="-50" max="50" step="1" value="-10" />
-          <div class="pill"><span id="valdCdx"></span></div>
+        <div class="card third">
+          <h3 data-i18n="home.cards.cond.title">Conducción</h3>
+          <p class="mini" data-i18n="home.cards.cond.desc">Fourier y resistencias térmicas.</p>
+          <span class="chip" data-i18n="home.cards.cond.tag">calor</span>
         </div>
-        <div class="control">
-          <label id="lblC0">C(0)</label>
-          <input type="range" id="C0" min="0" max="200" step="1" value="80" />
-          <div class="pill"><span id="valC0"></span></div>
+        <div class="card third">
+          <h3 data-i18n="home.cards.conv.title">Convección</h3>
+          <p class="mini" data-i18n="home.cards.conv.desc">Newton, h y enfriamiento.</p>
+          <span class="chip" data-i18n="home.cards.conv.tag">calor/masa</span>
         </div>
-      </div>
-
-      <div class="kpi">
-        <div class="pill" id="kpiJ"></div>
-        <div class="pill" id="kpiDir"></div>
-      </div>
-
-      <div class="examples" id="diffExamples"></div>
-    </div>
-
-    <div class="card half">
-      <div class="row">
-        <div id="diffPlotTitle" style="font-weight:700">Perfil C(x)</div>
-        <div class="muted small" id="diffPlotNote">línea simple 1D</div>
-      </div>
-      <canvas id="chartDiff" height="220"></canvas>
-    </div>
-  </section>
-
-  <!-- CONDUCCIÓN -->
-  <section class="grid" id="panel-cond" style="display:none">
-    <div class="card half">
-      <div class="row">
-        <div>
-          <div id="condTitle" style="font-weight:700">Conducción (Fourier)</div>
-          <div class="muted" id="condSub">Transferencia por gradiente de temperatura</div>
+        <div class="card third">
+          <h3 data-i18n="home.cards.dim.title">Adimensionales</h3>
+          <p class="mini" data-i18n="home.cards.dim.desc">Re, Pr, Sc, Nu, Sh.</p>
+          <span class="chip" data-i18n="home.cards.dim.tag">diagnóstico</span>
         </div>
-        <select id="condMaterial">
-          <option value="custom">Custom</option>
-          <option value="metal">Metal (alto k)</option>
-          <option value="plastic">Plástico (bajo k)</option>
-        </select>
-      </div>
-
-      <div class="controls">
-        <div class="control">
-          <label id="lblk">Conductividad k (W/m·K)</label>
-          <input type="range" id="k" min="0.05" max="400" step="0.05" value="15" />
-          <div class="pill"><span id="valk"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblA">Área A (m²)</label>
-          <input type="range" id="A" min="0.01" max="2" step="0.01" value="0.2" />
-          <div class="pill"><span id="valA"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblL">Espesor L (m)</label>
-          <input type="range" id="L" min="0.001" max="0.2" step="0.001" value="0.02" />
-          <div class="pill"><span id="valL"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblDT">ΔT (K)</label>
-          <input type="range" id="dT" min="1" max="200" step="1" value="40" />
-          <div class="pill"><span id="valdT"></span></div>
+        <div class="card third">
+          <h3 data-i18n="home.cards.sim.title">Simplificaciones</h3>
+          <p class="mini" data-i18n="home.cards.sim.desc">Cómo cae la ecuación general.</p>
+          <span class="chip" data-i18n="home.cards.sim.tag">modelos</span>
         </div>
       </div>
+    </section>
 
-      <div class="kpi">
-        <div class="pill" id="kpiQcond"></div>
-        <div class="pill" id="kpiQcond2"></div>
-      </div>
-
-      <div class="examples" id="condExamples"></div>
-    </div>
-
-    <div class="card half">
-      <div class="row">
-        <div id="condPlotTitle" style="font-weight:700">Comparación: k alto vs k bajo</div>
-        <div class="muted small" id="condPlotNote">mismo ΔT, A, L</div>
-      </div>
-      <canvas id="chartCond" height="220"></canvas>
-    </div>
-  </section>
-
-  <!-- CONVECCIÓN -->
-  <section class="grid" id="panel-conv" style="display:none">
-    <div class="card half">
-      <div class="row">
-        <div>
-          <div id="convTitle" style="font-weight:700">Convección (Newton)</div>
-          <div class="muted" id="convSub">Transferencia por movimiento de fluido</div>
+    <section id="general">
+      <h2 data-i18n="general.title">Ecuación general de transporte</h2>
+      <p class="sub" data-i18n="general.subtitle">Una misma estructura explica masa, calor y momentum.</p>
+      <div class="grid">
+        <div class="card half">
+          <div class="equation">
+            <div data-i18n="general.balance">Acumulación = Entrada - Salida + Generación</div>
+            <div style="margin-top:8px" data-i18n="general.diff">∂(ρϕ)/∂t + ∇·(ρuϕ) = ∇·(Γ∇ϕ) + Sϕ</div>
+          </div>
+          <p class="mini" style="margin-top:10px" data-i18n="general.fixedLine">Toda esta ecuación es solo una forma elegante de decir: lo que entra, lo que sale y lo que se queda.</p>
+          <div class="table" style="margin-top:12px">
+            <div class="table-row"><span>🧺 <strong data-i18n="general.blocks.storeTitle">Lo que se guarda</strong></span><span data-i18n="general.blocks.storeText">Como llenar una alcancía.</span></div>
+            <div class="table-row"><span>🚚 <strong data-i18n="general.blocks.moveTitle">Lo que se mueve</strong></span><span data-i18n="general.blocks.moveText">Como un camión que lleva cosas.</span></div>
+            <div class="table-row"><span>🧂 <strong data-i18n="general.blocks.spreadTitle">Lo que se esparce</strong></span><span data-i18n="general.blocks.spreadText">Como perfume que se reparte solo.</span></div>
+            <div class="table-row"><span>➕ <strong data-i18n="general.blocks.makeTitle">Lo que se crea o se quita</strong></span><span data-i18n="general.blocks.makeText">Como encender o apagar una fábrica.</span></div>
+          </div>
+          <div class="table" style="margin-top:12px">
+            <div class="table-row"><span><strong>ρ</strong></span><span data-i18n="general.rho">densidad (kg/m³)</span></div>
+            <div class="table-row"><span><strong>ϕ</strong></span><span data-i18n="general.phi">propiedad: T o concentración</span></div>
+            <div class="table-row"><span><strong>u</strong></span><span data-i18n="general.u">velocidad del fluido (m/s)</span></div>
+            <div class="table-row"><span><strong>Γ</strong></span><span data-i18n="general.gamma">difusividad (D o k/ρcp)</span></div>
+            <div class="table-row"><span><strong>Sϕ</strong></span><span data-i18n="general.sphi">fuente/generación</span></div>
+          </div>
         </div>
-        <select id="convScenario">
-          <option value="custom">Custom</option>
-          <option value="still">Aire quieto</option>
-          <option value="fan">Con ventilador</option>
-          <option value="water">En agua</option>
-        </select>
-      </div>
-
-      <div class="controls">
-        <div class="control">
-          <label id="lblh">Coef. h (W/m²·K)</label>
-          <input type="range" id="h" min="2" max="2000" step="1" value="15" />
-          <div class="pill"><span id="valh"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblA2">Área A (m²)</label>
-          <input type="range" id="A2" min="0.01" max="2" step="0.01" value="0.15" />
-          <div class="pill"><span id="valA2"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblTs">T_superficie (°C)</label>
-          <input type="range" id="Ts" min="0" max="120" step="1" value="80" />
-          <div class="pill"><span id="valTs"></span></div>
-        </div>
-        <div class="control">
-          <label id="lblTinf">T_fluido (°C)</label>
-          <input type="range" id="Tinf" min="0" max="60" step="1" value="25" />
-          <div class="pill"><span id="valTinf"></span></div>
+        <div class="card half soft">
+          <h3 data-i18n="general.explain.title">¿Cómo leerla rápido?</h3>
+          <ul class="mini">
+            <li data-i18n="general.explain.one">Si no hay cambios en el tiempo → la acumulación se anula.</li>
+            <li data-i18n="general.explain.two">Si el fluido no se mueve → no hay convección.</li>
+            <li data-i18n="general.explain.three">La difusión suaviza perfiles (tiende a “alisar”).</li>
+            <li data-i18n="general.explain.four">La generación añade o retira la propiedad en el volumen.</li>
+          </ul>
         </div>
       </div>
+    </section>
 
-      <div class="kpi">
-        <div class="pill" id="kpiQconv"></div>
-        <div class="pill" id="kpiCooling"></div>
+    <section id="diffusion">
+      <h2 data-i18n="diff.title">Difusión (masa)</h2>
+      <p class="sub" data-i18n="diff.subtitle">J = -D dC/dx y una animación transitoria cualitativa.</p>
+      <div class="grid">
+        <div class="card half">
+          <h3 data-i18n="diff.controls">Panel de control</h3>
+          <div class="controls">
+            <div class="control">
+              <label data-i18n="diff.D">Difusividad D <span class="info" data-i18n-title="diff.Dinfo">i</span></label>
+              <input type="range" id="diffD" min="0.0000005" max="0.0002" step="0.0000005" value="0.00002" />
+              <div class="pill" id="diffDVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="diff.grad">Gradiente dC/dx <span class="info" data-i18n-title="diff.gradInfo">i</span></label>
+              <input type="range" id="diffGrad" min="-50" max="50" step="1" value="-10" />
+              <div class="pill" id="diffGradVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="diff.C0">C(0) <span class="info" data-i18n-title="diff.C0Info">i</span></label>
+              <input type="range" id="diffC0" min="0" max="200" step="1" value="80" />
+              <div class="pill" id="diffC0Val"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="diff.CL">C(L) <span class="info" data-i18n-title="diff.CLInfo">i</span></label>
+              <input type="range" id="diffCL" min="0" max="200" step="1" value="40" />
+              <div class="pill" id="diffCLVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="diff.L">Longitud L (m) <span class="info" data-i18n-title="diff.LInfo">i</span></label>
+              <input type="range" id="diffL" min="0.01" max="1" step="0.01" value="0.3" />
+              <div class="pill" id="diffLVal"></div>
+            </div>
+          </div>
+          <div class="kpi">
+            <div class="pill" id="diffJ"></div>
+            <div class="pill" id="diffHint"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="diff.changeTitle">¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?</h4>
+            <p class="mini" id="diffChange"></p>
+          </div>
+          <div class="examples" id="diffExamples"></div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="diff.challenge">Mini-reto: flujo objetivo</h4>
+            <p class="mini" data-i18n="diff.challengeHint">Ajusta D y gradiente para alcanzar J* (±5%).</p>
+            <div class="kpi">
+              <div class="pill" id="diffTarget"></div>
+              <div class="badge" id="diffStatus"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card half">
+          <h3 data-i18n="diff.plots">Gráficas</h3>
+          <p class="mini" data-i18n="diff.plotsHint">Perfil C(x,t) y sensibilidad de J a D.</p>
+          <canvas id="diffProfile" height="180"></canvas>
+          <canvas id="diffFlux" height="180" style="margin-top:12px"></canvas>
+        </div>
       </div>
+    </section>
 
-      <div class="examples" id="convExamples"></div>
-    </div>
-
-    <div class="card half">
-      <div class="row">
-        <div id="convPlotTitle" style="font-weight:700">q vs h</div>
-        <div class="muted small" id="convPlotNote">mantiene A y ΔT</div>
+    <section id="conduction">
+      <h2 data-i18n="cond.title">Conducción (calor)</h2>
+      <p class="sub" data-i18n="cond.subtitle">q = kAΔT/L y resistencias térmicas en serie.</p>
+      <div class="grid">
+        <div class="card half">
+          <h3 data-i18n="cond.controls">Panel de control</h3>
+          <div class="controls">
+            <div class="control">
+              <label data-i18n="cond.k">Conductividad k <span class="info" data-i18n-title="cond.kInfo">i</span></label>
+              <input type="range" id="condK" min="0.05" max="400" step="0.05" value="15" />
+              <div class="pill" id="condKVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="cond.A">Área A <span class="info" data-i18n-title="cond.AInfo">i</span></label>
+              <input type="range" id="condA" min="0.01" max="2" step="0.01" value="0.2" />
+              <div class="pill" id="condAVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="cond.L">Espesor L <span class="info" data-i18n-title="cond.LInfo">i</span></label>
+              <input type="range" id="condL" min="0.001" max="0.2" step="0.001" value="0.02" />
+              <div class="pill" id="condLVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="cond.dT">ΔT <span class="info" data-i18n-title="cond.dTInfo">i</span></label>
+              <input type="range" id="condDT" min="1" max="200" step="1" value="40" />
+              <div class="pill" id="condDTVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="cond.layers">Capas en serie</label>
+              <select id="condLayers">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <div class="pill" id="condRVal"></div>
+            </div>
+          </div>
+          <div id="layerInputs" style="margin-top:8px"></div>
+          <div class="kpi">
+            <div class="pill" id="condQ"></div>
+            <div class="pill" id="condR"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="cond.changeTitle">¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?</h4>
+            <p class="mini" id="condChange"></p>
+          </div>
+          <div class="examples" id="condExamples"></div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="cond.challenge">Mini-reto: limita q</h4>
+            <p class="mini" data-i18n="cond.challengeHint">Diseña L y material para que q sea menor que el objetivo.</p>
+            <div class="kpi">
+              <div class="pill" id="condTarget"></div>
+              <div class="badge" id="condStatus"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card half">
+          <h3 data-i18n="cond.plots">Gráficas</h3>
+          <p class="mini" data-i18n="cond.plotsHint">q vs L y comparación de materiales.</p>
+          <canvas id="condPlotL" height="180"></canvas>
+          <canvas id="condPlotMat" height="180" style="margin-top:12px"></canvas>
+        </div>
       </div>
-      <canvas id="chartConv" height="220"></canvas>
-    </div>
-  </section>
+    </section>
 
-  <div class="card">
-    <div class="row">
-      <div style="font-weight:700" id="nextTitle">Siguiente nivel (vibe coding)</div>
-      <div class="muted small" id="nextHint">Cuando esto corra, le agregamos: Re/Pr/Sc, masa+calor acoplados, y mini-retos.</div>
-    </div>
+    <section id="convection">
+      <h2 data-i18n="conv.title">Convección (calor/masa)</h2>
+      <p class="sub" data-i18n="conv.subtitle">q = hA(Ts - T∞) y enfriamiento cualitativo.</p>
+      <div class="grid">
+        <div class="card half">
+          <h3 data-i18n="conv.controls">Panel de control</h3>
+          <div class="controls">
+            <div class="control">
+              <label data-i18n="conv.h">Coef. h <span class="info" data-i18n-title="conv.hInfo">i</span></label>
+              <input type="range" id="convH" min="2" max="2000" step="1" value="15" />
+              <div class="pill" id="convHVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="conv.A">Área A <span class="info" data-i18n-title="conv.AInfo">i</span></label>
+              <input type="range" id="convA" min="0.01" max="2" step="0.01" value="0.15" />
+              <div class="pill" id="convAVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="conv.Ts">T superficie <span class="info" data-i18n-title="conv.TsInfo">i</span></label>
+              <input type="range" id="convTs" min="0" max="120" step="1" value="80" />
+              <div class="pill" id="convTsVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="conv.Tinf">T fluido <span class="info" data-i18n-title="conv.TinfInfo">i</span></label>
+              <input type="range" id="convTinf" min="0" max="60" step="1" value="25" />
+              <div class="pill" id="convTinfVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="conv.fluid">Tipo de fluido</label>
+              <select id="convFluid">
+                <option value="custom" data-i18n="conv.fluidCustom">Custom</option>
+                <option value="air" data-i18n="conv.fluidAir">Aire quieto</option>
+                <option value="fan" data-i18n="conv.fluidFan">Aire con ventilador</option>
+                <option value="water" data-i18n="conv.fluidWater">Agua</option>
+              </select>
+              <div class="pill" id="convSpeed"></div>
+            </div>
+          </div>
+          <div class="kpi">
+            <div class="pill" id="convQ"></div>
+            <div class="pill" id="convHint"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="conv.changeTitle">¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?</h4>
+            <p class="mini" id="convChange"></p>
+          </div>
+          <div class="examples" id="convExamples"></div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="conv.challenge">Mini-reto: café a 50°C</h4>
+            <p class="mini" data-i18n="conv.challengeHint">Ajusta h para que llegue antes de N minutos (modelo simple).</p>
+            <div class="kpi">
+              <div class="pill" id="convTarget"></div>
+              <div class="badge" id="convStatus"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card half">
+          <h3 data-i18n="conv.plots">Gráficas</h3>
+          <p class="mini" data-i18n="conv.plotsHint">q vs h y curva T(t).</p>
+          <canvas id="convPlotQ" height="180"></canvas>
+          <canvas id="convPlotT" height="180" style="margin-top:12px"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section id="dimensionless">
+      <h2 data-i18n="dim.title">Números adimensionales</h2>
+      <p class="sub" data-i18n="dim.subtitle">Calcula Re, Pr, Sc, Nu y Sh con interpretación rápida.</p>
+      <div class="grid">
+        <div class="card half">
+          <h3 data-i18n="dim.controls">Entradas</h3>
+          <div class="controls">
+            <div class="control">
+              <label data-i18n="dim.rho">ρ (kg/m³)</label>
+              <input type="range" id="dimRho" min="0.5" max="1200" step="0.5" value="1000" />
+              <div class="pill" id="dimRhoVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.u">u (m/s)</label>
+              <input type="range" id="dimU" min="0.01" max="5" step="0.01" value="0.4" />
+              <div class="pill" id="dimUVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.L">L (m)</label>
+              <input type="range" id="dimL" min="0.001" max="2" step="0.001" value="0.1" />
+              <div class="pill" id="dimLVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.mu">μ (Pa·s)</label>
+              <input type="range" id="dimMu" min="0.00001" max="0.5" step="0.00001" value="0.001" />
+              <div class="pill" id="dimMuVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.cp">cp (J/kg·K)</label>
+              <input type="range" id="dimCp" min="500" max="4200" step="10" value="4180" />
+              <div class="pill" id="dimCpVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.k">k (W/m·K)</label>
+              <input type="range" id="dimK" min="0.01" max="1" step="0.01" value="0.6" />
+              <div class="pill" id="dimKVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.D">D (m²/s)</label>
+              <input type="range" id="dimD" min="0.0000005" max="0.0002" step="0.0000005" value="0.00002" />
+              <div class="pill" id="dimDVal"></div>
+            </div>
+            <div class="control">
+              <label data-i18n="dim.h">h (W/m²·K)</label>
+              <input type="range" id="dimH" min="2" max="2000" step="1" value="15" />
+              <div class="pill" id="dimHVal"></div>
+            </div>
+          </div>
+          <div class="examples" id="dimExamples"></div>
+        </div>
+        <div class="card half">
+          <h3 data-i18n="dim.results">Resultados</h3>
+          <div class="kpi">
+            <div class="pill" id="dimRe"></div>
+            <div class="pill" id="dimPr"></div>
+            <div class="pill" id="dimSc"></div>
+            <div class="pill" id="dimNu"></div>
+            <div class="pill" id="dimSh"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="dim.questionsTitle">¿Qué pregunta cada número?</h4>
+            <ul class="mini">
+              <li data-i18n="dim.questionsRe">Reynolds: “¿Es lento o rápido?”</li>
+              <li data-i18n="dim.questionsPr">Prandtl: “¿Qué se mueve más fácil: calor o velocidad?”</li>
+              <li data-i18n="dim.questionsSc">Schmidt: “¿Qué se mueve más fácil: masa o velocidad?”</li>
+            </ul>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4 data-i18n="dim.interpret">Interpretación rápida</h4>
+            <div class="table">
+              <div class="table-row"><span>Re</span><span class="traffic" id="dimReInt"></span></div>
+              <div class="table-row"><span>Pr</span><span class="traffic" id="dimPrInt"></span></div>
+              <div class="table-row"><span>Sc</span><span class="traffic" id="dimScInt"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="simplifications">
+      <h2 data-i18n="simp.title">Simplificaciones de la ecuación general</h2>
+      <p class="sub" data-i18n="simp.subtitle">Activa toggles para ver cómo cambia la ecuación.</p>
+      <div class="grid">
+        <div class="card half">
+          <h3 data-i18n="simp.controls">Toggles físicos</h3>
+          <div class="toggle-list">
+            <label class="toggle"><span data-i18n="simp.steady">Estado estacionario (∂/∂t = 0)</span><input type="checkbox" id="simpSteady" /></label>
+            <label class="toggle"><span data-i18n="simp.noconv">Sin convección (u = 0)</span><input type="checkbox" id="simpNoConv" /></label>
+            <label class="toggle"><span data-i18n="simp.oneD">1D (solo x)</span><input type="checkbox" id="simp1D" /></label>
+            <label class="toggle"><span data-i18n="simp.const">Propiedades constantes</span><input type="checkbox" id="simpConst" /></label>
+            <label class="toggle"><span data-i18n="simp.nogen">Sin generación (Sϕ = 0)</span><input type="checkbox" id="simpNoGen" /></label>
+          </div>
+        </div>
+        <div class="card half">
+          <h3 data-i18n="simp.result">Ecuación resultante</h3>
+          <div class="equation" id="simpEq"></div>
+          <p class="mini" id="simpExplain"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="challenges">
+      <h2 data-i18n="ch.title">Mini-retos</h2>
+      <p class="sub" data-i18n="ch.subtitle">Resumen de objetivos por tema (se actualiza en vivo).</p>
+      <div class="grid">
+        <div class="card third">
+          <h3 data-i18n="ch.diff">Difusión</h3>
+          <p class="mini" data-i18n="ch.diffHint">Logra el flujo objetivo J*.</p>
+          <div class="badge" id="chDiffStatus"></div>
+        </div>
+        <div class="card third">
+          <h3 data-i18n="ch.cond">Conducción</h3>
+          <p class="mini" data-i18n="ch.condHint">Mantén q por debajo del objetivo.</p>
+          <div class="badge" id="chCondStatus"></div>
+        </div>
+        <div class="card third">
+          <h3 data-i18n="ch.conv">Convección</h3>
+          <p class="mini" data-i18n="ch.convHint">Enfría a 50°C antes del tiempo.</p>
+          <div class="badge" id="chConvStatus"></div>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
 <script>
-  // ===== i18n (ES/EN) =====
   const I18N = {
     es: {
       title: "Fenómenos de Transporte — Interactivo",
-      hint: "Sliders → observa la gráfica",
-      eqHint: "Cambia sliders y prueba ejemplos",
-      tabs: { diff:"Difusión", cond:"Conducción", conv:"Convección" },
-
-      diff: {
-        title:"Difusión (Fick)",
-        sub:"Flujo por gradiente de concentración",
-        units: { m2s:"D en m²/s", cm2s:"D en cm²/s" },
-        lblD:"Difusividad D",
-        lblGrad:"Gradiente dC/dx",
-        lblC0:"C(0)",
-        kpiJ:(J)=>`Flujo J: <b>${fmt(J,4)}</b> (unid.)`,
-        kpiDir:(J)=> J>0 ? "Dirección: <b>+x</b>" : (J<0 ? "Dirección: <b>-x</b>" : "Dirección: <b>0</b>"),
-        plotTitle:"Perfil C(x)",
-        plotNote:"línea simple 1D",
-        ex:[
-          {name:"Perfume en aire (D ~ 2e-5)", set:{D:0.00002,dCdx:-8,C0:80,unit:"m2s"}},
-          {name:"Soluto en agua (D ~ 1e-9)", set:{D:0.00000002,dCdx:-20,C0:120,unit:"m2s"}},
-          {name:"Gradiente invertido", set:{D:0.00002,dCdx:15,C0:60,unit:"m2s"}},
-        ]
+      subtitle: "Dashboard educativo con sliders, gráficas y mini-retos (ES/EN).",
+      nav:{
+        title:"Mapa rápido",
+        home:"Home",
+        general:"Ecuación general",
+        diffusion:"Difusión",
+        conduction:"Conducción",
+        convection:"Convección",
+        dimensionless:"Adimensionales",
+        simplifications:"Simplificaciones",
+        challenges:"Mini-retos"
       },
-
-      cond: {
-        title:"Conducción (Fourier)",
-        sub:"Transferencia por gradiente de temperatura",
-        lblk:"Conductividad k (W/m·K)",
-        lblA:"Área A (m²)",
-        lblL:"Espesor L (m)",
-        lblDT:"ΔT (K)",
-        plotTitle:"Comparación: k alto vs k bajo",
-        plotNote:"mismo ΔT, A, L",
-        kpi1:(q)=>`Calor q: <b>${fmt(q,2)}</b> W`,
-        kpi2:(qpp)=>`Flujo q'': <b>${fmt(qpp,2)}</b> W/m²`,
-        ex:[
-          {name:"Metal vs Plástico", set:{k:15,A:0.2,L:0.02,dT:40,mat:"custom"}},
-          {name:"Aislante grueso", set:{k:0.2,A:0.2,L:0.12,dT:40,mat:"custom"}},
-          {name:"Pared delgada conductiva", set:{k:200,A:0.2,L:0.005,dT:60,mat:"custom"}},
-        ]
+      home:{
+        title:"Home / Mapa del curso",
+        subtitle:"Explora cada módulo. Todo es interactivo y bilingüe.",
+        cards:{
+          general:{title:"Ecuación general",desc:"Base de masa, calor y momento.",tag:"conceptos base"},
+          diff:{title:"Difusión",desc:"Fick, perfiles y flujo.",tag:"masa"},
+          cond:{title:"Conducción",desc:"Fourier y resistencias térmicas.",tag:"calor"},
+          conv:{title:"Convección",desc:"Newton, h y enfriamiento.",tag:"calor/masa"},
+          dim:{title:"Adimensionales",desc:"Re, Pr, Sc, Nu, Sh.",tag:"diagnóstico"},
+          sim:{title:"Simplificaciones",desc:"Cómo cae la ecuación general.",tag:"modelos"}
+        }
       },
-
-      conv: {
-        title:"Convección (Newton)",
-        sub:"Transferencia por movimiento de fluido",
-        lblh:"Coef. h (W/m²·K)",
-        lblA:"Área A (m²)",
-        lblTs:"T_superficie (°C)",
-        lblTinf:"T_fluido (°C)",
-        plotTitle:"q vs h",
-        plotNote:"mantiene A y ΔT",
-        kpi1:(q)=>`Calor q: <b>${fmt(q,2)}</b> W`,
-        kpi2:(tau)=>`“Qué tan rápido” (aprox): <b>${tau}</b>`,
-        ex:[
-          {name:"Café, aire quieto", set:{h:10,A2:0.15,Ts:80,Tinf:25,sc:"still"}},
-          {name:"Café, con ventilador", set:{h:60,A2:0.15,Ts:80,Tinf:25,sc:"fan"}},
-          {name:"En agua (agitación)", set:{h:500,A2:0.15,Ts:80,Tinf:25,sc:"water"}},
-        ]
+      general:{
+        title:"Ecuación general de transporte",
+        subtitle:"Una misma idea explica masa, calor y movimiento.",
+        balance:"Acumulación = Entrada - Salida + Generación",
+        diff:"∂(ρϕ)/∂t + ∇·(ρuϕ) = ∇·(Γ∇ϕ) + Sϕ",
+        fixedLine:"Toda esta ecuación es solo una forma elegante de decir: lo que entra, lo que sale y lo que se queda.",
+        blocks:{
+          storeTitle:"Lo que se guarda",
+          storeText:"Como llenar una alcancía.",
+          moveTitle:"Lo que se mueve",
+          moveText:"Como un camión que lleva cosas.",
+          spreadTitle:"Lo que se esparce",
+          spreadText:"Como perfume que se reparte solo.",
+          makeTitle:"Lo que se crea o se quita",
+          makeText:"Como encender o apagar una fábrica."
+        },
+        rho:"ρ dice “cuánto hay” en un volumen.",
+        phi:"ϕ dice “qué cosa viaja” (calor o concentración).",
+        u:"u dice “qué tan rápido empujas” (viento o agua).",
+        gamma:"Γ dice “qué tan fácil se reparte solo”.",
+        sphi:"Sϕ dice “si alguien crea o quita algo”.",
+        explain:{
+          title:"¿Cómo leerla rápido?",
+          one:"Si nada cambia con el tiempo, no se guarda nada nuevo.",
+          two:"Si el aire/agua no se mueve, no empuja.",
+          three:"La difusión es como olor que se reparte solo.",
+          four:"La generación es como abrir o cerrar una llave."
+        }
       },
-
-      nextTitle:"Siguiente nivel (vibe coding)",
-      nextHint:"Cuando esto corra, le agregamos: Re/Pr/Sc, masa+calor acoplados, y mini-retos."
+      diff:{
+        title:"Difusión (masa)",
+        subtitle:"Las cosas siempre quieren ir de donde hay mucho a donde hay poco.",
+        controls:"Panel de control",
+        D:"Difusividad D",
+        Dinfo:"Este número dice qué tan fácil se mueve algo. Grande = fácil; pequeño = difícil.",
+        grad:"Gradiente dC/dx",
+        gradInfo:"Dice qué tan grande es la diferencia entre un lado y otro.",
+        C0:"C(0)",
+        C0Info:"Cuánto hay en el lado izquierdo.",
+        CL:"C(L)",
+        CLInfo:"Cuánto hay en el lado derecho.",
+        L:"Longitud L (m)",
+        LInfo:"Qué tan largo es el camino.",
+        plots:"Gráficas",
+        plotsHint:"Perfil C(x,t) y sensibilidad de J a D.",
+        hintLow:"D grande = se mueve fácil, el perfil se alisa.",
+        hintHigh:"Diferencia grande = más “empujón”.",
+        changeTitle:"¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?",
+        challenge:"Mini-reto: flujo objetivo",
+        challengeHint:"Ajusta D y gradiente para alcanzar J* (±5%)."
+      },
+      cond:{
+        title:"Conducción (calor)",
+        subtitle:"El calor camina de caliente a frío, como un niño que busca la sombra.",
+        controls:"Panel de control",
+        k:"Conductividad k",
+        kInfo:"Este número dice qué tan fácil pasa el calor. Metal = fácil; plástico = difícil.",
+        A:"Área A",
+        AInfo:"Más área = más espacio para pasar.",
+        L:"Espesor L",
+        LInfo:"Más grosor = camino más largo.",
+        dT:"ΔT",
+        dTInfo:"Qué tan fuerte es el empujón de calor.",
+        layers:"Capas en serie",
+        plots:"Gráficas",
+        plotsHint:"q vs L y comparación de materiales.",
+        matInsul:"Aislante",
+        matCurrent:"Actual",
+        matMetal:"Metal",
+        changeTitle:"¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?",
+        challenge:"Mini-reto: limita q",
+        challengeHint:"Diseña L y material para que q sea menor que el objetivo."
+      },
+      conv:{
+        title:"Convección (calor/masa)",
+        subtitle:"Aquí el calor no camina solo: alguien lo lleva, como un autobús.",
+        controls:"Panel de control",
+        h:"Coef. h",
+        hInfo:"Este número dice qué tan rápido mueve el aire/agua el calor.",
+        A:"Área A",
+        AInfo:"Más área = más lugar para llevar calor.",
+        Ts:"T superficie",
+        TsInfo:"Qué tan caliente está el objeto.",
+        Tinf:"T fluido",
+        TinfInfo:"Qué tan frío/caliente está el aire o el agua.",
+        fluid:"Tipo de fluido",
+        fluidCustom:"Custom",
+        fluidAir:"Aire quieto",
+        fluidFan:"Aire con ventilador",
+        fluidWater:"Agua",
+        plots:"Gráficas",
+        plotsHint:"q vs h y curva T(t).",
+        hintLow:"h grande = el calor se va rápido.",
+        hintHigh:"h pequeño = el calor se queda más.",
+        changeTitle:"¿QUÉ CAMBIÓ CUANDO MOVISTE ESTO?",
+        challenge:"Mini-reto: café a 50°C",
+        challengeHint:"Ajusta h para que llegue antes de N minutos (modelo simple)."
+      },
+      dim:{
+        title:"Números adimensionales",
+        subtitle:"Son preguntas para entender cómo se mueve todo.",
+        controls:"Entradas",
+        rho:"ρ (kg/m³)",
+        u:"u (m/s)",
+        L:"L (m)",
+        mu:"μ (Pa·s)",
+        cp:"cp (J/kg·K)",
+        k:"k (W/m·K)",
+        D:"D (m²/s)",
+        h:"h (W/m²·K)",
+        results:"Resultados",
+        interpret:"Semáforo rápido",
+        questionsTitle:"¿Qué pregunta cada número?",
+        questionsRe:"Reynolds: “¿Es lento o rápido?”",
+        questionsPr:"Prandtl: “¿Qué se mueve más fácil: calor o velocidad?”",
+        questionsSc:"Schmidt: “¿Qué se mueve más fácil: masa o velocidad?”"
+      },
+      simp:{
+        title:"Simplificaciones de la ecuación general",
+        subtitle:"Apaga cosas y mira qué historia queda.",
+        controls:"Toggles físicos",
+        steady:"Estado estacionario (∂/∂t = 0)",
+        noconv:"Sin convección (u = 0)",
+        oneD:"1D (solo x)",
+        const:"Propiedades constantes",
+        nogen:"Sin generación (Sϕ = 0)",
+        result:"Ecuación resultante"
+      },
+      ch:{
+        title:"Mini-retos",
+        subtitle:"Resumen de objetivos por tema (se actualiza en vivo).",
+        diff:"Difusión",
+        diffHint:"Logra el flujo objetivo J*.",
+        cond:"Conducción",
+        condHint:"Mantén q por debajo del objetivo.",
+        conv:"Convección",
+        convHint:"Enfría a 50°C antes del tiempo."
+      },
+      status:{
+        ok:"¡Objetivo logrado!",
+        pending:"En progreso",
+        tooHigh:"Aún alto",
+        tooLow:"Aún bajo"
+      },
+      labels:{
+        flux:"Flujo J",
+        heat:"Calor q",
+        resistance:"Resistencia R",
+        target:"Objetivo",
+        minutes:"min",
+        timeTo50:"Tiempo a 50°C",
+        speedSlow:"lento",
+        speedMed:"medio",
+        speedFast:"rápido",
+        low:"tranquilo",
+        med:"cuidado",
+        high:"muy intenso"
+      }
     },
-
     en: {
       title: "Transport Phenomena — Interactive",
-      hint: "Sliders → watch the plot",
-      eqHint: "Move sliders and try examples",
-      tabs: { diff:"Diffusion", cond:"Conduction", conv:"Convection" },
-
-      diff: {
-        title:"Diffusion (Fick)",
-        sub:"Flux driven by concentration gradient",
-        units: { m2s:"D in m²/s", cm2s:"D in cm²/s" },
-        lblD:"Diffusivity D",
-        lblGrad:"Gradient dC/dx",
-        lblC0:"C(0)",
-        kpiJ:(J)=>`Flux J: <b>${fmt(J,4)}</b> (units)`,
-        kpiDir:(J)=> J>0 ? "Direction: <b>+x</b>" : (J<0 ? "Direction: <b>-x</b>" : "Direction: <b>0</b>"),
-        plotTitle:"C(x) profile",
-        plotNote:"simple 1D line",
-        ex:[
-          {name:"Perfume in air (D ~ 2e-5)", set:{D:0.00002,dCdx:-8,C0:80,unit:"m2s"}},
-          {name:"Solute in water (very low D)", set:{D:0.00000002,dCdx:-20,C0:120,unit:"m2s"}},
-          {name:"Reverse gradient", set:{D:0.00002,dCdx:15,C0:60,unit:"m2s"}},
-        ]
+      subtitle: "Educational dashboard with sliders, plots, and mini-challenges (ES/EN).",
+      nav:{
+        title:"Quick map",
+        home:"Home",
+        general:"General equation",
+        diffusion:"Diffusion",
+        conduction:"Conduction",
+        convection:"Convection",
+        dimensionless:"Dimensionless",
+        simplifications:"Simplifications",
+        challenges:"Mini-challenges"
       },
-
-      cond: {
-        title:"Conduction (Fourier)",
-        sub:"Heat transfer driven by temperature gradient",
-        lblk:"Conductivity k (W/m·K)",
-        lblA:"Area A (m²)",
-        lblL:"Thickness L (m)",
-        lblDT:"ΔT (K)",
-        plotTitle:"Compare: high k vs low k",
-        plotNote:"same ΔT, A, L",
-        kpi1:(q)=>`Heat q: <b>${fmt(q,2)}</b> W`,
-        kpi2:(qpp)=>`Heat flux q'': <b>${fmt(qpp,2)}</b> W/m²`,
-        ex:[
-          {name:"Metal vs Plastic", set:{k:15,A:0.2,L:0.02,dT:40,mat:"custom"}},
-          {name:"Thick insulation", set:{k:0.2,A:0.2,L:0.12,dT:40,mat:"custom"}},
-          {name:"Thin conductive wall", set:{k:200,A:0.2,L:0.005,dT:60,mat:"custom"}},
-        ]
+      home:{
+        title:"Home / Course map",
+        subtitle:"Explore each module. Everything is interactive and bilingual.",
+        cards:{
+          general:{title:"General equation",desc:"Basis for mass, heat, momentum.",tag:"core concepts"},
+          diff:{title:"Diffusion",desc:"Fick, profiles, and flux.",tag:"mass"},
+          cond:{title:"Conduction",desc:"Fourier and thermal resistance.",tag:"heat"},
+          conv:{title:"Convection",desc:"Newton, h, and cooling.",tag:"heat/mass"},
+          dim:{title:"Dimensionless",desc:"Re, Pr, Sc, Nu, Sh.",tag:"diagnostics"},
+          sim:{title:"Simplifications",desc:"How the general equation reduces.",tag:"models"}
+        }
       },
-
-      conv: {
-        title:"Convection (Newton)",
-        sub:"Heat transfer with moving fluid",
-        lblh:"Coeff. h (W/m²·K)",
-        lblA:"Area A (m²)",
-        lblTs:"Surface T (°C)",
-        lblTinf:"Fluid T (°C)",
-        plotTitle:"q vs h",
-        plotNote:"holds A and ΔT",
-        kpi1:(q)=>`Heat q: <b>${fmt(q,2)}</b> W`,
-        kpi2:(tau)=>`“How fast” (rough): <b>${tau}</b>`,
-        ex:[
-          {name:"Coffee, still air", set:{h:10,A2:0.15,Ts:80,Tinf:25,sc:"still"}},
-          {name:"Coffee, with fan", set:{h:60,A2:0.15,Ts:80,Tinf:25,sc:"fan"}},
-          {name:"In water (agitated)", set:{h:500,A2:0.15,Ts:80,Tinf:25,sc:"water"}},
-        ]
+      general:{
+        title:"General transport equation",
+        subtitle:"One simple idea explains mass, heat, and motion.",
+        balance:"Accumulation = In - Out + Generation",
+        diff:"∂(ρϕ)/∂t + ∇·(ρuϕ) = ∇·(Γ∇ϕ) + Sϕ",
+        fixedLine:"This whole equation is just a fancy way to say: what goes in, what goes out, and what stays.",
+        blocks:{
+          storeTitle:"What is stored",
+          storeText:"Like filling a piggy bank.",
+          moveTitle:"What is moved",
+          moveText:"Like a truck carrying stuff.",
+          spreadTitle:"What spreads out",
+          spreadText:"Like perfume spreading by itself.",
+          makeTitle:"What is made or removed",
+          makeText:"Like turning a factory on or off."
+        },
+        rho:"ρ says “how much stuff” in a space.",
+        phi:"ϕ says “what thing travels” (heat or concentration).",
+        u:"u says “how fast you push” (wind or water).",
+        gamma:"Γ says “how easy it spreads by itself.”",
+        sphi:"Sϕ says “if something is created or removed.”",
+        explain:{
+          title:"How to read it fast",
+          one:"If time does not change, nothing new is stored.",
+          two:"If air/water does not move, nothing is pushed.",
+          three:"Diffusion is like smell spreading by itself.",
+          four:"Generation is like opening or closing a tap."
+        }
       },
-
-      nextTitle:"Next level (vibe coding)",
-      nextHint:"Once it runs, we add: Re/Pr/Sc, coupled mass+heat, and mini-challenges."
+      diff:{
+        title:"Diffusion (mass)",
+        subtitle:"Things always go from “a lot” to “a little”.",
+        controls:"Control panel",
+        D:"Diffusivity D",
+        Dinfo:"This number says how easy it is to move. Big = easy; small = hard.",
+        grad:"Gradient dC/dx",
+        gradInfo:"How big the difference is from one side to the other.",
+        C0:"C(0)",
+        C0Info:"How much is on the left side.",
+        CL:"C(L)",
+        CLInfo:"How much is on the right side.",
+        L:"Length L (m)",
+        LInfo:"How long the path is.",
+        plots:"Plots",
+        plotsHint:"C(x,t) profile and J sensitivity to D.",
+        hintLow:"Big D = easy to move, the line smooths out.",
+        hintHigh:"Big difference = stronger push.",
+        changeTitle:"WHAT CHANGED WHEN YOU MOVED THIS?",
+        challenge:"Mini-challenge: target flux",
+        challengeHint:"Adjust D and gradient to hit J* (±5%)."
+      },
+      cond:{
+        title:"Conduction (heat)",
+        subtitle:"Heat walks from hot to cold, like a kid looking for shade.",
+        controls:"Control panel",
+        k:"Conductivity k",
+        kInfo:"This number says how easy heat passes. Metal = easy; plastic = hard.",
+        A:"Area A",
+        AInfo:"More area = more space to pass.",
+        L:"Thickness L",
+        LInfo:"Thicker = longer path.",
+        dT:"ΔT",
+        dTInfo:"How strong the heat push is.",
+        layers:"Series layers",
+        plots:"Plots",
+        plotsHint:"q vs L and material comparison.",
+        matInsul:"Insulator",
+        matCurrent:"Current",
+        matMetal:"Metal",
+        changeTitle:"WHAT CHANGED WHEN YOU MOVED THIS?",
+        challenge:"Mini-challenge: limit q",
+        challengeHint:"Design L and material so q is below the target."
+      },
+      conv:{
+        title:"Convection (heat/mass)",
+        subtitle:"Heat does not walk alone: someone carries it, like a bus.",
+        controls:"Control panel",
+        h:"Coeff. h",
+        hInfo:"This number says how fast air/water carries heat.",
+        A:"Area A",
+        AInfo:"More area = more space to carry heat.",
+        Ts:"Surface T",
+        TsInfo:"How hot the object is.",
+        Tinf:"Fluid T",
+        TinfInfo:"How hot/cold the air or water is.",
+        fluid:"Fluid type",
+        fluidCustom:"Custom",
+        fluidAir:"Still air",
+        fluidFan:"Air with fan",
+        fluidWater:"Water",
+        plots:"Plots",
+        plotsHint:"q vs h and T(t) curve.",
+        hintLow:"Big h = heat leaves fast.",
+        hintHigh:"Small h = heat stays longer.",
+        changeTitle:"WHAT CHANGED WHEN YOU MOVED THIS?",
+        challenge:"Mini-challenge: coffee to 50°C",
+        challengeHint:"Adjust h so it reaches before N minutes (simple model)."
+      },
+      dim:{
+        title:"Dimensionless numbers",
+        subtitle:"They are questions to understand movement.",
+        controls:"Inputs",
+        rho:"ρ (kg/m³)",
+        u:"u (m/s)",
+        L:"L (m)",
+        mu:"μ (Pa·s)",
+        cp:"cp (J/kg·K)",
+        k:"k (W/m·K)",
+        D:"D (m²/s)",
+        h:"h (W/m²·K)",
+        results:"Results",
+        interpret:"Quick traffic light",
+        questionsTitle:"What does each number ask?",
+        questionsRe:"Reynolds: “Is it slow or fast?”",
+        questionsPr:"Prandtl: “What moves easier: heat or speed?”",
+        questionsSc:"Schmidt: “What moves easier: mass or speed?”"
+      },
+      simp:{
+        title:"Simplifications of the general equation",
+        subtitle:"Turn things off and see the new story.",
+        controls:"Physical toggles",
+        steady:"Steady state (∂/∂t = 0)",
+        noconv:"No convection (u = 0)",
+        oneD:"1D (x only)",
+        const:"Constant properties",
+        nogen:"No generation (Sϕ = 0)",
+        result:"Resulting equation"
+      },
+      ch:{
+        title:"Mini-challenges",
+        subtitle:"Summary of goals by topic (updates live).",
+        diff:"Diffusion",
+        diffHint:"Hit the target flux J*.",
+        cond:"Conduction",
+        condHint:"Keep q below the target.",
+        conv:"Convection",
+        convHint:"Cool to 50°C before the time."
+      },
+      status:{
+        ok:"Goal achieved!",
+        pending:"In progress",
+        tooHigh:"Still high",
+        tooLow:"Still low"
+      },
+      labels:{
+        flux:"Flux J",
+        heat:"Heat q",
+        resistance:"Resistance R",
+        target:"Target",
+        minutes:"min",
+        timeTo50:"Time to 50°C",
+        speedSlow:"slow",
+        speedMed:"medium",
+        speedFast:"fast",
+        low:"calm",
+        med:"careful",
+        high:"very intense"
+      }
     }
   };
 
   let lang = "es";
-
-  // ===== helpers =====
   const $ = (id)=>document.getElementById(id);
-  const fmt = (x, d=3)=> Number.isFinite(x) ? Number(x).toFixed(d) : "—";
-  const clamp = (x, a, b)=>Math.max(a, Math.min(b, x));
+  const fmt = (v, d=3)=> Number.isFinite(v) ? Number(v).toFixed(d) : "—";
+  const clamp = (v, a, b)=>Math.max(a, Math.min(b, v));
 
-  // ===== tabs =====
-  document.querySelectorAll(".tab").forEach(t=>{
-    t.addEventListener("click", ()=>{
-      document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-      t.classList.add("active");
-      const tab = t.dataset.tab;
-      ["diff","cond","conv"].forEach(k=>{
-        $("panel-"+k).style.display = (k===tab) ? "" : "none";
-      });
+  const charts = {};
+  let diffTime = 0;
+
+  const diffTarget = -0.0006;
+  const condTarget = 120;
+  const convTargetMinutes = 8;
+
+  function t(key){
+    return key.split(".").reduce((acc, part)=> acc && acc[part], I18N[lang]);
+  }
+
+  function applyLang(){
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      el.textContent = t(el.dataset.i18n);
     });
-  });
-
-  // ===== charts =====
-  let chartDiff, chartCond, chartConv;
+    document.querySelectorAll("[data-i18n-title]").forEach(el=>{
+      el.title = t(el.dataset.i18nTitle);
+    });
+    $("langBtn").textContent = lang === "es" ? "EN" : "ES";
+    if(charts.condPlotMat){
+      charts.condPlotMat.data.labels = [t("cond.matInsul"), t("cond.matCurrent"), t("cond.matMetal")];
+      charts.condPlotMat.update();
+    }
+    updateAll();
+    renderExamples();
+    renderDimExamples();
+    updateSimplifications();
+  }
 
   function initCharts(){
-    // Diffusion chart: C(x)
-    const ctxD = $("chartDiff").getContext("2d");
-    chartDiff = new Chart(ctxD, {
+    charts.diffProfile = new Chart($("diffProfile"),{
       type:"line",
-      data:{ labels:[], datasets:[{ label:"C(x)", data:[] }] },
-      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+      data:{labels:[],datasets:[{label:"C(x,t)",data:[],borderColor:"#356dff",backgroundColor:"rgba(53,109,255,.2)",fill:true,tension:0.3}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
     });
-
-    // Conduction comparison bar
-    const ctxC = $("chartCond").getContext("2d");
-    chartCond = new Chart(ctxC, {
+    charts.diffFlux = new Chart($("diffFlux"),{
+      type:"line",
+      data:{labels:[],datasets:[{label:"J vs D",data:[],borderColor:"#0da66e",backgroundColor:"rgba(13,166,110,.2)",fill:true,tension:0.3}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
+    });
+    charts.condPlotL = new Chart($("condPlotL"),{
+      type:"line",
+      data:{labels:[],datasets:[{label:"q",data:[],borderColor:"#ff8c42",backgroundColor:"rgba(255,140,66,.2)",fill:true,tension:0.3}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
+    });
+    charts.condPlotMat = new Chart($("condPlotMat"),{
       type:"bar",
-      data:{ labels:["Low k","Current k","High k"], datasets:[{ label:"q (W)", data:[0,0,0] }] },
-      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+      data:{labels:["Insul","Current","Metal"],datasets:[{label:"q",data:[],backgroundColor:["#9fb6ff","#356dff","#0da66e"]}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
     });
-
-    // Convection: q vs h line
-    const ctxV = $("chartConv").getContext("2d");
-    chartConv = new Chart(ctxV, {
+    charts.convPlotQ = new Chart($("convPlotQ"),{
       type:"line",
-      data:{ labels:[], datasets:[{ label:"q (W)", data:[] }] },
-      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{color:"#a9b3d1"}}, x:{ ticks:{color:"#a9b3d1"}} } }
+      data:{labels:[],datasets:[{label:"q",data:[],borderColor:"#6b7bff",backgroundColor:"rgba(107,123,255,.2)",fill:true,tension:0.3}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
+    });
+    charts.convPlotT = new Chart($("convPlotT"),{
+      type:"line",
+      data:{labels:[],datasets:[{label:"T(t)",data:[],borderColor:"#ff7a7a",backgroundColor:"rgba(255,122,122,.2)",fill:true,tension:0.3}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5f6b8a"}},y:{ticks:{color:"#5f6b8a"}}}}
     });
   }
 
-  // ===== diffusion logic =====
-  function getD_SI(){
-    const unit = $("diffUnits").value; // m2s or cm2s
-    let D = parseFloat($("D").value);
-    // If cm²/s, convert to m²/s (1 cm² = 1e-4 m²)
-    if(unit==="cm2s") D = D * 1e-4;
-    return D;
-  }
+  function updateDiffusion(){
+    const D = parseFloat($("diffD").value);
+    const grad = parseFloat($("diffGrad").value);
+    const C0 = parseFloat($("diffC0").value);
+    const CL = parseFloat($("diffCL").value);
+    const L = parseFloat($("diffL").value);
 
-  function updateDiff(){
-    const unit = $("diffUnits").value;
-    const D_raw = parseFloat($("D").value);
-    const dCdx = parseFloat($("dCdx").value); // concentration units per meter (conceptual)
-    const C0 = parseFloat($("C0").value);
+    $("diffDVal").textContent = `${fmt(D,6)} m²/s`;
+    $("diffGradVal").textContent = `${grad} ΔC/m`;
+    $("diffC0Val").textContent = `${C0}`;
+    $("diffCLVal").textContent = `${CL}`;
+    $("diffLVal").textContent = `${fmt(L,2)} m`;
 
-    $("valD").textContent = unit==="m2s" ? `${fmt(D_raw,6)} m²/s` : `${fmt(D_raw,6)} cm²/s`;
-    $("valdCdx").textContent = `${dCdx} (ΔC/m)`;
-    $("valC0").textContent = `${C0}`;
+    const J = -D * grad;
+    $("diffJ").innerHTML = `${t("labels.flux")}: <strong>${fmt(J,6)}</strong>`;
 
-    const D = getD_SI();
-    const J = -D * dCdx;
+    const hint = Math.abs(grad) > 20 ? t("diff.hintHigh") : t("diff.hintLow");
+    $("diffHint").textContent = hint;
+    const dir = J > 0 ? (lang === "es" ? "la derecha" : "the right") : (J < 0 ? (lang === "es" ? "la izquierda" : "the left") : (lang === "es" ? "ningún lado" : "no direction"));
+    const ease = D > 0.00005 ? (lang === "es" ? "es fácil moverse" : "it is easy to move") : (lang === "es" ? "cuesta moverse" : "it is hard to move");
+    const gradTalk = Math.abs(grad) > 20 ? (lang === "es" ? "la diferencia es grande" : "the difference is big") : (lang === "es" ? "la diferencia es pequeña" : "the difference is small");
+    const lineTalk = Math.abs(grad) > 10 ? (lang === "es" ? "la línea se inclina más" : "the line tilts more") : (lang === "es" ? "la línea casi es plana" : "the line is almost flat");
+    $("diffChange").textContent = lang === "es"
+      ? `Ahora ${lineTalk} porque ${gradTalk}. El flujo camina hacia ${dir} y ${ease} porque D es ${fmt(D,6)}.`
+      : `Now ${lineTalk} because ${gradTalk}. The flow walks toward ${dir} and ${ease} because D is ${fmt(D,6)}.`;
 
-    $("kpiJ").innerHTML = I18N[lang].diff.kpiJ(J);
-    $("kpiDir").innerHTML = I18N[lang].diff.kpiDir(J);
-
-    // build C(x) for x in [0,1] m
     const xs = [];
     const Cs = [];
+    const tau = clamp(L*L/(D*1000), 0.3, 6);
+    diffTime += 0.05;
+    const alpha = Math.exp(-diffTime/tau);
     for(let i=0;i<=30;i++){
-      const x = i/30;
-      xs.push(x.toFixed(2));
-      Cs.push(C0 + dCdx*x);
+      const x = (L*i)/30;
+      xs.push(fmt(x,2));
+      const steady = C0 + (CL - C0)*(x/L);
+      const wobble = 10*Math.sin(Math.PI*x/L);
+      Cs.push(steady + wobble*alpha);
     }
-    chartDiff.data.labels = xs;
-    chartDiff.data.datasets[0].data = Cs;
-    chartDiff.update();
+    charts.diffProfile.data.labels = xs;
+    charts.diffProfile.data.datasets[0].data = Cs;
+    charts.diffProfile.update();
+
+    const Ds = [];
+    const Js = [];
+    for(let i=0;i<=25;i++){
+      const Dv = 0.0000005 + (0.0002-0.0000005)*i/25;
+      Ds.push(fmt(Dv,6));
+      Js.push(-Dv*grad);
+    }
+    charts.diffFlux.data.labels = Ds;
+    charts.diffFlux.data.datasets[0].data = Js;
+    charts.diffFlux.update();
+
+    const within = Math.abs((J - diffTarget)/diffTarget) <= 0.05;
+    $("diffTarget").innerHTML = `${t("labels.target")} J* = <strong>${fmt(diffTarget,6)}</strong>`;
+    $("diffStatus").textContent = within ? t("status.ok") : t("status.pending");
+    $("diffStatus").className = `badge ${within ? "" : "warn"}`;
+    $("chDiffStatus").textContent = within ? t("status.ok") : t("status.pending");
+    $("chDiffStatus").className = `badge ${within ? "" : "warn"}`;
   }
 
-  function renderDiffExamples(){
-    const box = $("diffExamples");
-    box.innerHTML = "";
-    I18N[lang].diff.ex.forEach(ex=>{
-      const b = document.createElement("div");
-      b.className = "ex";
-      b.textContent = ex.name;
-      b.onclick = ()=>{
-        $("diffUnits").value = ex.set.unit;
-        // For the slider: keep D raw as displayed unit
-        $("D").value = ex.set.D;
-        $("dCdx").value = ex.set.dCdx;
-        $("C0").value = ex.set.C0;
-        updateDiff();
-      };
-      box.appendChild(b);
-    });
+  function updateConduction(){
+    const k = parseFloat($("condK").value);
+    const A = parseFloat($("condA").value);
+    const L = parseFloat($("condL").value);
+    const dT = parseFloat($("condDT").value);
+    const layers = parseInt($("condLayers").value, 10);
+
+    $("condKVal").textContent = `${fmt(k,2)} W/m·K`;
+    $("condAVal").textContent = `${fmt(A,2)} m²`;
+    $("condLVal").textContent = `${fmt(L,3)} m`;
+    $("condDTVal").textContent = `${fmt(dT,0)} K`;
+
+    let totalR = L/(k*A);
+    const layerValues = [k];
+    for(let i=2;i<=layers;i++){
+      const kLayer = parseFloat($("condK"+i).value);
+      const LLayer = parseFloat($("condL"+i).value);
+      totalR += LLayer/(kLayer*A);
+      layerValues.push(kLayer);
+    }
+
+    const q = dT / totalR;
+    $("condQ").innerHTML = `${t("labels.heat")}: <strong>${fmt(q,2)}</strong> W`;
+    $("condR").innerHTML = `${t("labels.resistance")}: <strong>${fmt(totalR,4)}</strong> K/W`;
+    $("condRVal").textContent = `R = ${fmt(totalR,4)}`;
+    const thick = L > 0.08 ? (lang === "es" ? "el suéter es muy grueso" : "the sweater is very thick") : (lang === "es" ? "el suéter es delgado" : "the sweater is thin");
+    const pass = k > 50 ? (lang === "es" ? "el material deja pasar calor fácil" : "the material lets heat pass easily") : (lang === "es" ? "el material frena el calor" : "the material slows heat");
+    const push = dT > 80 ? (lang === "es" ? "el empujón es fuerte" : "the push is strong") : (lang === "es" ? "el empujón es suave" : "the push is gentle");
+    $("condChange").textContent = lang === "es"
+      ? `Ahora ${pass} y ${thick}. ${push}. ${L > 0.08 ? "Aunque haya calor, el camino es largo y cuesta pasar." : "El camino es corto y pasa más fácil."}`
+      : `Now ${pass} and ${thick}. ${push}. ${L > 0.08 ? "Even with heat, the path is long so it is hard to pass." : "The path is short so it passes easier."}`;
+
+    const Ls = [];
+    const qs = [];
+    for(let i=0;i<=25;i++){
+      const Lv = 0.002 + (0.2-0.002)*i/25;
+      Ls.push(fmt(Lv,3));
+      qs.push(k*A*dT/Lv);
+    }
+    charts.condPlotL.data.labels = Ls;
+    charts.condPlotL.data.datasets[0].data = qs;
+    charts.condPlotL.update();
+
+    const qIns = 0.2*A*dT/L;
+    const qMet = 200*A*dT/L;
+    charts.condPlotMat.data.datasets[0].data = [qIns, q, qMet];
+    charts.condPlotMat.update();
+
+    const ok = q <= condTarget;
+    $("condTarget").innerHTML = `${t("labels.target")} q* = <strong>${condTarget}</strong> W`;
+    $("condStatus").textContent = ok ? t("status.ok") : t("status.tooHigh");
+    $("condStatus").className = `badge ${ok ? "" : "warn"}`;
+    $("chCondStatus").textContent = ok ? t("status.ok") : t("status.tooHigh");
+    $("chCondStatus").className = `badge ${ok ? "" : "warn"}`;
   }
 
-  // ===== conduction logic =====
-  function updateCond(){
-    let k = parseFloat($("k").value);
-    const A = parseFloat($("A").value);
-    const L = parseFloat($("L").value);
-    const dT = parseFloat($("dT").value);
-
-    $("valk").textContent = `${fmt(k,2)}`;
-    $("valA").textContent = `${fmt(A,2)}`;
-    $("valL").textContent = `${fmt(L,3)}`;
-    $("valdT").textContent = `${dT}`;
-
-    const q = k*A*dT / L;     // W (simple steady conduction)
-    const qpp = k*dT / L;     // W/m²
-
-    $("kpiQcond").innerHTML = I18N[lang].cond.kpi1(q);
-    $("kpiQcond2").innerHTML = I18N[lang].cond.kpi2(qpp);
-
-    // compare q for low/cur/high k
-    const kLow = 0.2, kHigh = 200;
-    const qLow = kLow*A*dT/L, qHigh = kHigh*A*dT/L;
-    chartCond.data.datasets[0].data = [qLow, q, qHigh];
-    chartCond.update();
-  }
-
-  function renderCondExamples(){
-    const box = $("condExamples");
-    box.innerHTML = "";
-    I18N[lang].cond.ex.forEach(ex=>{
-      const b = document.createElement("div");
-      b.className = "ex";
-      b.textContent = ex.name;
-      b.onclick = ()=>{
-        $("condMaterial").value = ex.set.mat || "custom";
-        $("k").value = ex.set.k;
-        $("A").value = ex.set.A;
-        $("L").value = ex.set.L;
-        $("dT").value = ex.set.dT;
-        updateCond();
-      };
-      box.appendChild(b);
-    });
-  }
-
-  $("condMaterial").addEventListener("change", ()=>{
-    const v = $("condMaterial").value;
-    if(v==="metal") $("k").value = 200;
-    if(v==="plastic") $("k").value = 0.2;
-    updateCond();
-  });
-
-  // ===== convection logic =====
-  function updateConv(){
-    const h = parseFloat($("h").value);
-    const A = parseFloat($("A2").value);
-    const Ts = parseFloat($("Ts").value);
-    const Tinf = parseFloat($("Tinf").value);
+  function updateConvection(){
+    const h = parseFloat($("convH").value);
+    const A = parseFloat($("convA").value);
+    const Ts = parseFloat($("convTs").value);
+    const Tinf = parseFloat($("convTinf").value);
     const dT = Ts - Tinf;
 
-    $("valh").textContent = `${fmt(h,0)}`;
-    $("valA2").textContent = `${fmt(A,2)}`;
-    $("valTs").textContent = `${fmt(Ts,0)}`;
-    $("valTinf").textContent = `${fmt(Tinf,0)}`;
+    $("convHVal").textContent = `${fmt(h,0)} W/m²·K`;
+    $("convAVal").textContent = `${fmt(A,2)} m²`;
+    $("convTsVal").textContent = `${fmt(Ts,0)} °C`;
+    $("convTinfVal").textContent = `${fmt(Tinf,0)} °C`;
 
     const q = h*A*dT;
+    $("convQ").innerHTML = `${t("labels.heat")}: <strong>${fmt(q,2)}</strong> W`;
 
-    // “speed” heuristic: bigger h → faster cooling (qualitative label)
-    let tau = "—";
-    const hEff = clamp(h,2,2000);
-    if(hEff < 15) tau = (lang==="es") ? "lento" : "slow";
-    else if(hEff < 80) tau = (lang==="es") ? "medio" : "medium";
-    else tau = (lang==="es") ? "rápido" : "fast";
+    let speed = t("labels.speedSlow");
+    if(h >= 80) speed = t("labels.speedFast");
+    else if(h >= 20) speed = t("labels.speedMed");
+    $("convSpeed").textContent = speed;
+    $("convHint").textContent = h > 80 ? t("conv.hintLow") : t("conv.hintHigh");
+    const carrier = h > 80 ? (lang === "es" ? "hay mucho viento/agua moviéndose" : "there is lots of moving air/water") : (lang === "es" ? "casi no hay movimiento" : "there is little movement");
+    const curve = h > 80 ? (lang === "es" ? "la curva baja rápido" : "the curve falls fast") : (lang === "es" ? "la curva baja lento" : "the curve falls slowly");
+    $("convChange").textContent = lang === "es"
+      ? `Ahora ${carrier}. Por eso ${curve} y el calor se va a otra velocidad.`
+      : `Now ${carrier}. That is why ${curve} and heat leaves at a different speed.`;
 
-    $("kpiQconv").innerHTML = I18N[lang].conv.kpi1(q);
-    $("kpiCooling").innerHTML = I18N[lang].conv.kpi2(tau);
-
-    // plot q vs h for a range (keeping A and dT)
-    const hs = [], qs = [];
-    const hMin=2, hMax=600;
+    const hs = [];
+    const qs = [];
     for(let i=0;i<=25;i++){
-      const hv = hMin + (hMax-hMin)*i/25;
-      hs.push(Math.round(hv).toString());
+      const hv = 2 + (600-2)*i/25;
+      hs.push(Math.round(hv));
       qs.push(hv*A*dT);
     }
-    chartConv.data.labels = hs;
-    chartConv.data.datasets[0].data = qs;
-    chartConv.update();
+    charts.convPlotQ.data.labels = hs;
+    charts.convPlotQ.data.datasets[0].data = qs;
+    charts.convPlotQ.update();
+
+    const times = [];
+    const temps = [];
+    const k = clamp(h/900, 0.005, 0.4);
+    for(let i=0;i<=30;i++){
+      const tmin = i * 0.5;
+      times.push(tmin);
+      const temp = Tinf + (Ts - Tinf)*Math.exp(-k*tmin);
+      temps.push(temp);
+    }
+    charts.convPlotT.data.labels = times;
+    charts.convPlotT.data.datasets[0].data = temps;
+    charts.convPlotT.update();
+
+    const targetTemp = 50;
+    let timeTo50 = null;
+    if(Ts > targetTemp && Ts !== Tinf){
+      const ratio = (targetTemp - Tinf)/(Ts - Tinf);
+      if(ratio > 0 && ratio < 1){
+        timeTo50 = -Math.log(ratio)/k;
+      }
+    }
+    const timeLabel = Number.isFinite(timeTo50) ? fmt(timeTo50,1) : "—";
+    $("convTarget").innerHTML = `${t("labels.timeTo50")} <strong>${timeLabel}</strong> ${t("labels.minutes")}`;
+    const ok = Number.isFinite(timeTo50) && timeTo50 <= convTargetMinutes;
+    $("convStatus").textContent = ok ? t("status.ok") : t("status.pending");
+    $("convStatus").className = `badge ${ok ? "" : "warn"}`;
+    $("chConvStatus").textContent = ok ? t("status.ok") : t("status.pending");
+    $("chConvStatus").className = `badge ${ok ? "" : "warn"}`;
   }
 
-  function renderConvExamples(){
-    const box = $("convExamples");
+  function renderLayerInputs(){
+    const layers = parseInt($("condLayers").value, 10);
+    const box = $("layerInputs");
     box.innerHTML = "";
-    I18N[lang].conv.ex.forEach(ex=>{
+    for(let i=2;i<=layers;i++){
+      const wrap = document.createElement("div");
+      wrap.className = "controls";
+      wrap.innerHTML = `
+        <div class="control">
+          <label>k${i} (W/m·K)</label>
+          <input type="range" id="condK${i}" min="0.05" max="400" step="0.05" value="0.4" />
+          <div class="pill" id="condK${i}Val"></div>
+        </div>
+        <div class="control">
+          <label>L${i} (m)</label>
+          <input type="range" id="condL${i}" min="0.001" max="0.2" step="0.001" value="0.03" />
+          <div class="pill" id="condL${i}Val"></div>
+        </div>
+      `;
+      box.appendChild(wrap);
+    }
+
+    for(let i=2;i<=layers;i++){
+      const kInput = $("condK"+i);
+      const lInput = $("condL"+i);
+      kInput.addEventListener("input", ()=>{
+        $("condK"+i+"Val").textContent = `${fmt(kInput.value,2)} W/m·K`;
+        updateConduction();
+      });
+      lInput.addEventListener("input", ()=>{
+        $("condL"+i+"Val").textContent = `${fmt(lInput.value,3)} m`;
+        updateConduction();
+      });
+      $("condK"+i+"Val").textContent = `${fmt(kInput.value,2)} W/m·K`;
+      $("condL"+i+"Val").textContent = `${fmt(lInput.value,3)} m`;
+    }
+  }
+
+  function updateDimensionless(){
+    const rho = parseFloat($("dimRho").value);
+    const u = parseFloat($("dimU").value);
+    const L = parseFloat($("dimL").value);
+    const mu = parseFloat($("dimMu").value);
+    const cp = parseFloat($("dimCp").value);
+    const k = parseFloat($("dimK").value);
+    const D = parseFloat($("dimD").value);
+    const h = parseFloat($("dimH").value);
+
+    $("dimRhoVal").textContent = fmt(rho,1);
+    $("dimUVal").textContent = fmt(u,2);
+    $("dimLVal").textContent = fmt(L,3);
+    $("dimMuVal").textContent = fmt(mu,5);
+    $("dimCpVal").textContent = fmt(cp,0);
+    $("dimKVal").textContent = fmt(k,2);
+    $("dimDVal").textContent = fmt(D,6);
+    $("dimHVal").textContent = fmt(h,0);
+
+    const Re = rho*u*L/Math.max(mu,1e-6);
+    const Pr = mu*cp/Math.max(k,1e-6);
+    const Sc = mu/(Math.max(rho,1e-6)*Math.max(D,1e-9));
+    const Nu = h*L/Math.max(k,1e-6);
+    const Sh = (h/1000)*L/Math.max(D,1e-9);
+
+    $("dimRe").innerHTML = `Re: <strong>${fmt(Re,1)}</strong>`;
+    $("dimPr").innerHTML = `Pr: <strong>${fmt(Pr,2)}</strong>`;
+    $("dimSc").innerHTML = `Sc: <strong>${fmt(Sc,2)}</strong>`;
+    $("dimNu").innerHTML = `Nu: <strong>${fmt(Nu,2)}</strong>`;
+    $("dimSh").innerHTML = `Sh: <strong>${fmt(Sh,2)}</strong>`;
+
+    $("dimReInt").innerHTML = buildTraffic(Re, 2000, 4000);
+    $("dimPrInt").innerHTML = buildTraffic(Pr, 0.7, 10);
+    $("dimScInt").innerHTML = buildTraffic(Sc, 0.7, 1000);
+  }
+
+  function buildTraffic(value, mid, high){
+    if(value < mid){
+      return `<span class="dot low"></span><span>${t("labels.low")}</span>`;
+    }
+    if(value < high){
+      return `<span class="dot med"></span><span>${t("labels.med")}</span>`;
+    }
+    return `<span class="dot high"></span><span>${t("labels.high")}</span>`;
+  }
+
+  function updateSimplifications(){
+    const steady = $("simpSteady").checked;
+    const noconv = $("simpNoConv").checked;
+    const oneD = $("simp1D").checked;
+    const constant = $("simpConst").checked;
+    const nogen = $("simpNoGen").checked;
+
+    const notes = [];
+    const baseStore = constant ? "ρ ∂ϕ/∂t" : "∂(ρϕ)/∂t";
+    const baseMove = constant ? "ρu·∇ϕ" : "∇·(ρuϕ)";
+    const baseSpread = oneD && constant ? "Γ d²ϕ/dx²" : (oneD ? "d/dx(Γ dϕ/dx)" : (constant ? "Γ∇²ϕ" : "∇·(Γ∇ϕ)"));
+    const baseMake = "Sϕ";
+
+    const leftParts = [];
+    if(!steady) leftParts.push(baseStore);
+    if(!noconv) leftParts.push(baseMove);
+    const left = leftParts.length ? leftParts.join(" + ") : "0";
+    const rightParts = [baseSpread];
+    if(!nogen) rightParts.push(baseMake);
+    const right = rightParts.join(" + ");
+
+    const eqOriginal = "∂(ρϕ)/∂t + ∇·(ρuϕ) = ∇·(Γ∇ϕ) + Sϕ";
+    const eqSimple = `${left} = ${right}`;
+
+    if(steady){
+      notes.push(lang === "es"
+        ? "Apagamos “lo que se guarda”: nada cambia con el tiempo."
+        : "We turn off “what is stored”: nothing changes with time.");
+    }
+    if(noconv){
+      notes.push(lang === "es"
+        ? "Apagamos “lo que se mueve”: nadie empuja, no hay viento."
+        : "We turn off “what is moved”: no one pushes, no wind.");
+    }
+    if(oneD){
+      notes.push(lang === "es"
+        ? "Solo miramos una línea (x): más simple para aprender."
+        : "We only look along one line (x): simpler to learn.");
+    }
+    if(constant){
+      notes.push(lang === "es"
+        ? "Los números no cambian: todo es parejo."
+        : "Numbers stay the same: everything is uniform.");
+    }
+    if(nogen){
+      notes.push(lang === "es"
+        ? "Apagamos la fábrica: no se crea ni se quita nada."
+        : "We turn off the factory: nothing is made or removed.");
+    }
+
+    let caseName = lang === "es" ? "Ecuación general" : "General equation";
+    if(noconv && steady && nogen){
+      caseName = lang === "es" ? "Difusión/Conducción estacionaria (Fick/Fourier)" : "Steady diffusion/conduction (Fick/Fourier)";
+    } else if(noconv && !steady){
+      caseName = lang === "es" ? "Difusión transitoria" : "Transient diffusion";
+    } else if(!noconv && steady && nogen){
+      caseName = lang === "es" ? "Convección-difusión estacionaria" : "Steady convection-diffusion";
+    }
+
+    $("simpEq").innerHTML = `
+      <div><strong>${eqOriginal}</strong></div>
+      <div style="margin:6px 0">→</div>
+      <div><strong>${eqSimple}</strong></div>
+      <div style="margin-top:6px" class="mini"><strong>${caseName}</strong></div>
+    `;
+    $("simpExplain").textContent = notes.length ? notes.join(" ") : (lang === "es" ? "Ecuación completa: no apagaste nada." : "Full equation: nothing is turned off.");
+  }
+
+  function renderExamples(){
+    const diffExamples = [
+      {es:"Perfume en aire", en:"Perfume in air", data:{D:0.00002,grad:-8,C0:80,CL:40,L:0.3}},
+      {es:"Soluto en agua", en:"Solute in water", data:{D:0.0000008,grad:-20,C0:120,CL:20,L:0.4}},
+      {es:"Membrana delgada", en:"Thin membrane", data:{D:0.00001,grad:-30,C0:150,CL:20,L:0.05}},
+      {es:"Gradiente invertido", en:"Reverse gradient", data:{D:0.00002,grad:18,C0:60,CL:140,L:0.3}}
+    ];
+    const condExamples = [
+      {es:"Pared aislada", en:"Insulated wall", data:{k:0.2,A:0.2,L:0.1,dT:40}},
+      {es:"Pared metálica", en:"Metal wall", data:{k:200,A:0.2,L:0.02,dT:60}},
+      {es:"Pared compuesta", en:"Composite wall", data:{k:1,A:0.2,L:0.04,dT:50}}
+    ];
+    const convExamples = [
+      {es:"Café en aire quieto", en:"Coffee in still air", data:{h:10,A:0.15,Ts:80,Tinf:25,fluid:"air"}},
+      {es:"Café con ventilador", en:"Coffee with fan", data:{h:60,A:0.15,Ts:80,Tinf:25,fluid:"fan"}},
+      {es:"En agua", en:"In water", data:{h:500,A:0.15,Ts:80,Tinf:25,fluid:"water"}}
+    ];
+
+    const diffBox = $("diffExamples");
+    diffBox.innerHTML = "";
+    diffExamples.forEach(ex=>{
       const b = document.createElement("div");
       b.className = "ex";
-      b.textContent = ex.name;
+      b.textContent = lang === "es" ? ex.es : ex.en;
       b.onclick = ()=>{
-        $("convScenario").value = ex.set.sc || "custom";
-        $("h").value = ex.set.h;
-        $("A2").value = ex.set.A2;
-        $("Ts").value = ex.set.Ts;
-        $("Tinf").value = ex.set.Tinf;
-        updateConv();
+        $("diffD").value = ex.data.D;
+        $("diffGrad").value = ex.data.grad;
+        $("diffC0").value = ex.data.C0;
+        $("diffCL").value = ex.data.CL;
+        $("diffL").value = ex.data.L;
+        updateDiffusion();
+      };
+      diffBox.appendChild(b);
+    });
+
+    const condBox = $("condExamples");
+    condBox.innerHTML = "";
+    condExamples.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = lang === "es" ? ex.es : ex.en;
+      b.onclick = ()=>{
+        $("condK").value = ex.data.k;
+        $("condA").value = ex.data.A;
+        $("condL").value = ex.data.L;
+        $("condDT").value = ex.data.dT;
+        updateConduction();
+      };
+      condBox.appendChild(b);
+    });
+
+    const convBox = $("convExamples");
+    convBox.innerHTML = "";
+    convExamples.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = lang === "es" ? ex.es : ex.en;
+      b.onclick = ()=>{
+        $("convH").value = ex.data.h;
+        $("convA").value = ex.data.A;
+        $("convTs").value = ex.data.Ts;
+        $("convTinf").value = ex.data.Tinf;
+        $("convFluid").value = ex.data.fluid;
+        updateConvection();
+      };
+      convBox.appendChild(b);
+    });
+  }
+
+  function renderDimExamples(){
+    const presets = [
+      {es:"Agua 25°C", en:"Water 25°C", data:{rho:997,u:0.4,L:0.1,mu:0.001,cp:4180,k:0.6,D:0.00002,h:200}},
+      {es:"Aire 25°C", en:"Air 25°C", data:{rho:1.2,u:0.6,L:0.2,mu:0.000018,cp:1006,k:0.026,D:0.00002,h:15}},
+      {es:"Flujo rápido", en:"Fast flow", data:{rho:997,u:2,L:0.05,mu:0.001,cp:4180,k:0.6,D:0.00002,h:600}}
+    ];
+    const box = $("dimExamples");
+    box.innerHTML = "";
+    presets.forEach(ex=>{
+      const b = document.createElement("div");
+      b.className = "ex";
+      b.textContent = lang === "es" ? ex.es : ex.en;
+      b.onclick = ()=>{
+        $("dimRho").value = ex.data.rho;
+        $("dimU").value = ex.data.u;
+        $("dimL").value = ex.data.L;
+        $("dimMu").value = ex.data.mu;
+        $("dimCp").value = ex.data.cp;
+        $("dimK").value = ex.data.k;
+        $("dimD").value = ex.data.D;
+        $("dimH").value = ex.data.h;
+        updateDimensionless();
       };
       box.appendChild(b);
     });
   }
 
-  $("convScenario").addEventListener("change", ()=>{
-    const v = $("convScenario").value;
-    if(v==="still") $("h").value = 10;
-    if(v==="fan") $("h").value = 60;
-    if(v==="water") $("h").value = 500;
-    updateConv();
-  });
+  function updateAll(){
+    updateDiffusion();
+    updateConduction();
+    updateConvection();
+    updateDimensionless();
+  }
 
-  // ===== language apply =====
-  function applyLang(){
-    const t = I18N[lang];
+  function wireInputs(){
+    ["diffD","diffGrad","diffC0","diffCL","diffL"].forEach(id=>$(id).addEventListener("input", updateDiffusion));
+    ["condK","condA","condL","condDT"].forEach(id=>$(id).addEventListener("input", updateConduction));
+    ["convH","convA","convTs","convTinf"].forEach(id=>$(id).addEventListener("input", updateConvection));
+    ["dimRho","dimU","dimL","dimMu","dimCp","dimK","dimD","dimH"].forEach(id=>$(id).addEventListener("input", updateDimensionless));
+    ["simpSteady","simpNoConv","simp1D","simpConst","simpNoGen"].forEach(id=>$(id).addEventListener("change", updateSimplifications));
 
-    $("title").textContent = t.title;
-    $("hint").textContent = t.hint;
-    $("eqHint").textContent = t.eqHint;
+    $("condLayers").addEventListener("change", ()=>{
+      renderLayerInputs();
+      updateConduction();
+    });
 
-    $("tabDiff").textContent = t.tabs.diff;
-    $("tabCond").textContent = t.tabs.cond;
-    $("tabConv").textContent = t.tabs.conv;
+    $("convFluid").addEventListener("change", ()=>{
+      const v = $("convFluid").value;
+      if(v === "air") $("convH").value = 10;
+      if(v === "fan") $("convH").value = 60;
+      if(v === "water") $("convH").value = 500;
+      updateConvection();
+    });
+  }
 
-    // Diff labels
-    $("diffTitle").textContent = t.diff.title;
-    $("diffSub").textContent = t.diff.sub;
-    $("lblD").textContent = t.diff.lblD;
-    $("lblGrad").textContent = t.diff.lblGrad;
-    $("lblC0").textContent = t.diff.lblC0;
-    $("diffPlotTitle").textContent = t.diff.plotTitle;
-    $("diffPlotNote").textContent = t.diff.plotNote;
-
-    // Diff units select text
-    $("diffUnits").options[0].text = t.diff.units.m2s;
-    $("diffUnits").options[1].text = t.diff.units.cm2s;
-
-    // Cond labels
-    $("condTitle").textContent = t.cond.title;
-    $("condSub").textContent = t.cond.sub;
-    $("lblk").textContent = t.cond.lblk;
-    $("lblA").textContent = t.cond.lblA;
-    $("lblL").textContent = t.cond.lblL;
-    $("lblDT").textContent = t.cond.lblDT;
-    $("condPlotTitle").textContent = t.cond.plotTitle;
-    $("condPlotNote").textContent = t.cond.plotNote;
-
-    // Conv labels
-    $("convTitle").textContent = t.conv.title;
-    $("convSub").textContent = t.conv.sub;
-    $("lblh").textContent = t.conv.lblh;
-    $("lblA2").textContent = t.conv.lblA;
-    $("lblTs").textContent = t.conv.lblTs;
-    $("lblTinf").textContent = t.conv.lblTinf;
-    $("convPlotTitle").textContent = t.conv.plotTitle;
-    $("convPlotNote").textContent = t.conv.plotNote;
-
-    // Footer
-    $("nextTitle").textContent = t.nextTitle;
-    $("nextHint").textContent = t.nextHint;
-
-    // examples re-render (language-dependent)
-    renderDiffExamples();
-    renderCondExamples();
-    renderConvExamples();
-
-    // refresh KPIs/plots
-    updateDiff(); updateCond(); updateConv();
+  function loop(){
+    let last = 0;
+    const tick = (time)=>{
+      if(time - last > 180){
+        updateDiffusion();
+        last = time;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   $("langBtn").addEventListener("click", ()=>{
-    lang = (lang==="es") ? "en" : "es";
-    $("langBtn").textContent = (lang==="es") ? "EN" : "ES";
+    lang = lang === "es" ? "en" : "es";
     applyLang();
   });
 
-  // ===== wire sliders =====
-  ["D","dCdx","C0","diffUnits"].forEach(id => $(id).addEventListener("input", updateDiff));
-  ["k","A","L","dT"].forEach(id => $(id).addEventListener("input", updateCond));
-  ["h","A2","Ts","Tinf"].forEach(id => $(id).addEventListener("input", updateConv));
-
-  // ===== start =====
   initCharts();
+  renderLayerInputs();
+  wireInputs();
   applyLang();
+  loop();
 </script>
 </body>
 </html>
